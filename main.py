@@ -10,20 +10,16 @@ log.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 log = log.getLogger(__name__)
 
 
-def prettyLogPOST(req):
+def prettyLogRequest(req):
     """
-    At this point it is completely built and ready
-    to be fired; it is "prepared".
-
-    However pay attention at the formatting used in
-    this function because it is programmed to be pretty
-    printed and may differ from the actual request.
+    Logs REST request in pretty, readable format
     """
-    log.debug('{}\n{}\r\n{}\r\n{}'.format(
+    log.debug('REST request:\n{}\n{}\r\n{}\r\n{}\r\n{}'.format(
         '-----------START-----------',
         req.method + ' ' + req.url,
         '\r\n'.join('{}: {}'.format(k, v) for k, v in req.headers.items()),
         req.body,
+        '-----------END-----------',
     ))
 
 
@@ -49,11 +45,17 @@ def deviceFlowOAuth():
             https://allegro.pl/auth/oauth/token?grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Adevice_code&'''
     contentType = 'application/x-www-form-urlencoded'
 
+    try:
+        return readToken()
+    except IOError:
+        log.debug('No saved token found!\r\n'
+                  'Must get new one...')
+
     req = requests.Request('POST', OAuthUri, headers={
         'Authorization': 'Basic ' + OAuthCodeEnc,
         'Content-Type': contentType},
                            data='client_id=' + clientID).prepare()
-    prettyLogPOST(req)
+    prettyLogRequest(req)
 
     s = requests.Session()
     resp = s.send(req)
@@ -68,11 +70,11 @@ def deviceFlowOAuth():
         time.sleep(5)
         req = requests.Request('POST', OAuthTokenUri, headers={
             'Authorization': 'Basic ' + OAuthCodeEnc}).prepare()
-        prettyLogPOST(req)
+        prettyLogRequest(req)
         resp = s.send(req)
-        log.debug('status: ' + str(resp.status_code) + '\r\n' +
-                  'text: ')
-        log.debug(pformat(resp))
+        log.debug('RESPONSE status: ' + str(resp.status_code) + '\r\n' +
+                  'RESPONSE text: ')
+        log.debug(pformat(resp.text))
 
         if resp.status_code == 200:
             break
@@ -80,13 +82,12 @@ def deviceFlowOAuth():
         print('Authorization failed!')
         return
 
-    resp = resp.json()
-    tokenObj = resp
+    tokenObj = resp.json()
 
     saveToken(tokenObj)
     tokenObj = readToken()
 
-    log.debug('\r\ntokenObj:')
+    log.debug('\r\nCreated NEW tokenObj:')
     log.debug(pformat(tokenObj))
     log.debug('')
 
@@ -94,11 +95,27 @@ def deviceFlowOAuth():
 
 
 def main():
-    tokenObj = readToken()
+    tokenObj = deviceFlowOAuth()
 
-    log.debug('\r\ntokenObj:')
-    log.debug(pformat(tokenObj))
-    log.debug('')
+    req = requests.Request('GET', 'https://api.allegro.pl/sale/delivery-methods',
+                           headers={
+                               'authorization': 'Bearer ' + tokenObj['access_token'],
+                               'accept': 'application/vnd.allegro.public.v1+json',
+                               'content-type': 'application/vnd.allegro.public.v1+json'},
+                           # data={
+                           #       "name": "Suszarka do włosów z dyfuzorem jonizacja",
+                           #       "category": {
+                           #           "id": "257150"
+                           #       }
+                           # }
+                           ).prepare()
+    prettyLogRequest(req)
+
+    s = requests.Session()
+    resp = s.send(req)
+    log.debug('status: ' + str(resp.status_code) + '\r\n' +
+              'text: ')
+    log.debug(pformat(resp.text))
 
 
 if __name__ == '__main__':
