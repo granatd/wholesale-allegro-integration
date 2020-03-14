@@ -9,6 +9,8 @@ from base64 import b64encode
 log.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 log = log.getLogger(__name__)
 
+global tokenObj
+
 
 def prettyLogRequest(req):
     """
@@ -36,6 +38,7 @@ def saveToken(tokenObj):
 
 
 def deviceFlowOAuth():
+    global tokenObj
     clientID = '129bf27db850446a9104a88bbfa02c41'
     clientSecret = 'jU0lMTUOF6v29thseEVib1drsBNmngrHUhR5l0mAPsOpTNqLQBbZ9MlfUMsQ0pTB'
     OAuthCode = clientID + ':' + clientSecret
@@ -91,12 +94,8 @@ def deviceFlowOAuth():
     log.debug(pformat(tokenObj))
     log.debug('')
 
-    return tokenObj
 
-
-def main():
-    tokenObj = deviceFlowOAuth()
-
+def getDeliveryMethods():
     req = requests.Request('GET', 'https://api.allegro.pl/sale/delivery-methods',
                            headers={
                                'authorization': 'Bearer ' + tokenObj['access_token'],
@@ -116,6 +115,27 @@ def main():
     log.debug('status: ' + str(resp.status_code) + '\r\n' +
               'text: ')
     log.debug(pformat(resp.text))
+
+
+def getShippingRates():
+    req = requests.Request('GET', 'https://api.allegro.pl/sale/shipping-rates',
+                           headers={
+                               'authorization': 'Bearer ' + tokenObj['access_token'],
+                               'accept': 'application/vnd.allegro.public.v1+json',
+                               'content-type': 'application/vnd.allegro.public.v1+json'},
+                           ).prepare()
+    prettyLogRequest(req)
+
+    s = requests.Session()
+    resp = s.send(req)
+    log.debug('status: ' + str(resp.status_code) + '\r\n' +
+              'text: ')
+    log.debug(pformat(resp.text))
+
+
+def main():
+    tokenObj = deviceFlowOAuth()
+    getShippingRates()
 
 
 if __name__ == '__main__':
