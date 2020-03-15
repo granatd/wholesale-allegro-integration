@@ -50,7 +50,8 @@ def deviceFlowOAuth():
     contentType = 'application/x-www-form-urlencoded'
 
     try:
-        return readToken()
+        tokenObj = readToken()
+        return
     except IOError:
         log.debug('No saved token found!\r\n'
                   'Must get new one...')
@@ -118,9 +119,10 @@ def getDeliveryMethods():
     log.debug(pformat(resp.text))
 
 
-def getShippingRates():
+def getShippingRates(sellerID):
     global tokenObj
-    req = requests.Request('GET', 'https://api.allegro.pl/sale/shipping-rates?seller.id={Seller_IDD}',
+
+    req = requests.Request('GET', 'https://api.allegro.pl/sale/shipping-rates?seller.id=' + sellerID,
                            headers={
                                'authorization': 'Bearer ' + tokenObj['access_token'],
                                'accept': 'application/vnd.allegro.public.v1+json',
@@ -135,22 +137,23 @@ def getShippingRates():
     log.debug(pformat(resp.text))
 
 
-def getSellerID(tokenObj):
+def getSellerID():
     """Decode sellerID from access token"""
+    global tokenObj
 
     b64_string = tokenObj['access_token'] + "=" * ((4 - len(tokenObj) % 4) % 4)  # adds proper padding to base64 string
     matchObj = re.search(b'\"user_name\":\"([0-9]+)\"', b64decode(b64_string))
     sellerID = matchObj.group(1).decode("UTF-8")
+    log.debug(sellerID)
 
     return sellerID
 
 
 def main():
-    global tokenObj
 
-    tokenObj = deviceFlowOAuth()
-    sellerID = getSellerID(tokenObj)
-    log.debug(sellerID)
+    deviceFlowOAuth()
+    sellerID = getSellerID()
+    getShippingRates(sellerID)
 
 
 if __name__ == '__main__':
