@@ -149,11 +149,34 @@ def getSellerID():
     return sellerID
 
 
+def getCategoryParams(categoryID):
+    global tokenObj
+
+    url = 'https://api.allegro.pl/sale/categories/{}/parameters'.format(categoryID)
+
+    req = requests.Request('GET', url,
+                           headers={
+                               'authorization': 'Bearer ' + tokenObj['access_token'],
+                               'accept': 'application/vnd.allegro.public.v1+json',
+                               'content-type': 'application/vnd.allegro.public.v1+json'},
+                           ).prepare()
+    prettyLogRequest(req)
+
+    s = requests.Session()
+    resp = s.send(req)
+    log.debug('status: ' + str(resp.status_code) + '\r\n' +
+              'text: ')
+    log.debug(pformat(resp.json()))
+
+    return resp.json()
+
+
 def main():
 
     deviceFlowOAuth()
     sellerID = getSellerID()
     getShippingRates(sellerID)
+    params = getCategoryParams('257689')
 
 
 if __name__ == '__main__':
