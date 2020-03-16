@@ -79,7 +79,7 @@ def deviceFlowOAuth():
         resp = s.send(req)
         log.debug('RESPONSE status: ' + str(resp.status_code) + '\r\n' +
                   'RESPONSE text: ')
-        log.debug(pformat(resp.text))
+        log.debug(pformat(resp.json()))
 
         if resp.status_code == 200:
             break
@@ -116,7 +116,7 @@ def getDeliveryMethods():
     resp = s.send(req)
     log.debug('status: ' + str(resp.status_code) + '\r\n' +
               'text: ')
-    log.debug(pformat(resp.text))
+    log.debug(pformat(resp.json()))
 
 
 def getShippingRates(sellerID):
@@ -134,14 +134,14 @@ def getShippingRates(sellerID):
     resp = s.send(req)
     log.debug('status: ' + str(resp.status_code) + '\r\n' +
               'text: ')
-    log.debug(pformat(resp.text))
+    log.debug(pformat(resp.json()))
 
 
 def getSellerID():
     """Decode sellerID from access token"""
     global tokenObj
 
-    b64_string = tokenObj['access_token'] + "=" * ((4 - len(tokenObj) % 4) % 4)  # adds proper padding to base64 string
+    b64_string = tokenObj['access_token'] + "=" * ((4 - len(tokenObj['access_token']) % 4) % 4 + 1)  # adds proper padding to base64 string
     matchObj = re.search(b'\"user_name\":\"([0-9]+)\"', b64decode(b64_string))
     sellerID = matchObj.group(1).decode("UTF-8")
     log.debug(sellerID)
