@@ -6,6 +6,7 @@ import logging as log
 import requests
 from pprint import pformat
 from base64 import b64encode, b64decode
+from xmlParser import createAllegroProducts
 
 log.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 log = log.getLogger(__name__)
@@ -103,12 +104,6 @@ def getDeliveryMethods():
                                'authorization': 'Bearer ' + tokenObj['access_token'],
                                'accept': 'application/vnd.allegro.public.v1+json',
                                'content-type': 'application/vnd.allegro.public.v1+json'},
-                           # data={
-                           #       "name": "Suszarka do włosów z dyfuzorem jonizacja",
-                           #       "category": {
-                           #           "id": "257150"
-                           #       }
-                           # }
                            ).prepare()
     prettyLogRequest(req)
 
@@ -171,12 +166,37 @@ def getCategoryParams(categoryID):
     return resp.json()
 
 
+def postImages(allegroProduct):
+    global tokenObj
+
+    url = 'https://api.allegro.pl/sale/images'
+
+    req = requests.Request('POST', url,
+                           headers={
+                               'authorization': 'Bearer ' + tokenObj['access_token'],
+                               'accept': 'application/vnd.allegro.public.v1+json',
+                               'content-type': 'application/vnd.allegro.public.v1+json'},
+                           data={
+                               'url': '{}'.format(img) for img in allegroProduct.getImages()
+                           }).prepare()
+    prettyLogRequest(req)
+
+    s = requests.Session()
+    resp = s.send(req)
+    log.debug('status: ' + str(resp.status_code) + '\r\n' +
+              'text: ')
+    log.debug(pformat(resp.json()))
+
+
 def main():
 
     deviceFlowOAuth()
-    sellerID = getSellerID()
-    getShippingRates(sellerID)
-    params = getCategoryParams('257689')
+    # sellerID = getSellerID()
+    # getShippingRates(sellerID)
+    getCategoryParams('257687')
+    products = createAllegroProducts('/home/daniel/Documents/1_praca/1_Freelance/1_handel/1_allegro/1_sklepy/LuckyStar/sklep.xml')
+    prod = products.pop()
+    postImages(prod)
 
 
 if __name__ == '__main__':

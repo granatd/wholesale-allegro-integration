@@ -1,12 +1,43 @@
+import os
 import requests
+import logging as log
 import xml.etree.ElementTree as eT
-
+from main import getCategoryParams
 
 ns = {'ng': 'http://nowegumy.pl'}
 
+log.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
+log = log.getLogger(__name__)
 
-def saveXML():
 
+allegro2ngMap = {
+    'Marka': 'Producent',
+    'Model': None,
+    'Kod producenta': 'Kod producenta',
+    'Szerokość opony': 'Szerokość',
+    'Profil opony': 'Wysokość',
+    'Średnica': 'Rozmiar felgi',
+    'Rok produkcji': None,
+    'Indeks prędkości': 'Indeks prędkości',
+    'Indeks nośności': 'Indeks nośności',
+    'Opór toczenia': 'Opory toczenia',
+    'Przyczepność na mokrej nawierzchni': 'Hamowanie na mokrym',
+    'Hałas zewnętrzny': 'Poziom hałasu',
+    'Rodzaj': 'Rodzaj',
+    'Sezon': 'Indentyfikator',
+    'Waga (z opakowaniem)': 'Waga',
+    #'Bieżnik': 'Głębokość bieżnika [mm]',
+    #'Przeznaczenie': 'Typ', # np. terenowe, zimowe, autobus
+    # 'Rodzaj': 'Opis -> bezdętkowa',  # np. bez/dętkowe
+    #  'Oś': None, # np. prowadząca, napędowa, naczepowa, uniwersalna
+    #  'Liczba płócien (PR)': 'Opis-> warstwowa',
+    # 'Konstrukcja': 'Opis/Informacje ogólne/Przeznaczenie/Techniczne cechy opony -> radialna, diagonalna',
+    'Typ motocykla': None,
+    'informacje dodatkowe': None,
+}
+
+
+def fetchXML():
     url = 'https://xml.nowegumy.pl/38c07d9eb6f585cb2e363aa8d83443b1b9fcc722/sklep.xml'
     resp = requests.get(url)
 
@@ -14,12 +45,122 @@ def saveXML():
         f.write(resp.content)
 
 
-def createAllegroProduct(ngProd):
-    pass
+class AllegroTire:
+    __ngProd = None
+    __availableParams = None
+    __paramsToSet = None
+
+    def getImages(self):
+        photos = list()
+        for desc in self.__ngProd.iter('ZDJECIA'):
+            photos += desc['BIG'].text
+
+        return photos
+
+    def getValue(self, key):
+        if key is None:
+            raise LookupError('Key param is None! Means there is no corresponding param. in XML')
+
+        for desc in self.__ngProd.iter('OPIS'):
+            if desc['NAZWA'].text.lower() is key.lower():
+                return desc['WARTOSC']
+
+        raise LookupError('No {} field!'.format(key))
+
+    def getType(self):
+        return self.getValue('typ')
+
+    def getSeason(self):
+        return self.getValue('sezon')
+
+    def getAllegroCategory(self):
+        if self.getType() == 'samochody osobowe':
+            if self.getSeason() is None:
+                return '257689'
+            elif self.getSeason() == 'letnie':
+                return '257689'
+            elif self.getSeason() == 'całoroczne':
+                return '257692'
+        elif self.getType() == 'samochody terenowe, SUV, Pickup':
+            if self.getSeason() is None:
+                return '257694'
+            elif self.getSeason() == 'letnie':
+                return '257694'
+            elif self.getSeason() == 'całoroczne':
+                return '257696'
+        elif self.getType() == 'samochody dostawcze':
+            if self.getSeason() is None:
+                return '257698'
+            elif self.getSeason() == 'letnie':
+                return '257698'
+            elif self.getSeason() == 'całoroczne':
+                return '257700'
+        elif self.getType() == 'przemysłowe':
+            if self.getSeason() is None:
+                return None
+            elif self.getSeason() == 'letnie':
+                return None
+            elif self.getSeason() == 'całoroczne':
+                return None
+
+        raise ValueError('Value not found!')
+
+    def assignParams(self):
+        self.__availableParams['parameters'] = list()
+        self.__paramsToSet['parameters'] = list()
+
+        availableParams = self.__availableParams['parameters']
+        params = self.__paramsToSet['parameters']
+
+        for param in availableParams:
+            try:
+                if param['name'].lower() == 'stan' or \
+                        param['name'].lower() == 'liczba opon w ofercie':
+                    params += {
+                        'id': param['id'],
+                        'valuesIds': [
+                            param['dictionary'][0]['id'],
+                        ],
+                        'values': [],
+                        'rangeValue': None
+                    }
+                elif (param['type'] is 'float' or
+                        param['type'] is 'int') and \
+                            param['restrictions']['range'] is False:
+                    val = float(self.getValue(allegro2ngMap[param['name']]))
+                    if val < param['restrictions']['min']:
+                        val = param['restrictions']['min']
+                    elif val > param['restrictions']['max']:
+                        val = param['restrictions']['max']
+
+                    params += {
+                        'id': param['id'],
+                        'valuesIds': [],
+                        'values': val,
+                        'rangeValue': None
+                    }
+                elif param['type'] is 'string':
+                    params += {
+                        'id': param['id'],
+                        'valuesIds': [],
+                        'values': self.getValue(allegro2ngMap[param['name']]),
+                        'rangeValue': None
+                    }
+            except LookupError as e:
+                log.debug(repr(e))
+                continue
+
+    def getAvailableParams(self, categoryID):
+        self.__availableParams = getCategoryParams(categoryID)
+
+    def __init__(self, ngProduct):
+        self.__ngProd = ngProduct
+        categoryID = self.getAllegroCategory()
+        self.getAvailableParams(categoryID)
+        self.assignParams()
 
 
-def parseXML(xmlfile):
-    global allegroProducts
+def createAllegroProducts(xmlfile):
     allegroProducts = list()
 
     tree = eT.parse(xmlfile)
@@ -37,12 +178,17 @@ def parseXML(xmlfile):
         if price.text is None:
             continue
 
-        # narzut
+        # Mój narzut
         price.text = str(float(price.text) * 0.92)
 
-        createAllegroProduct(prod)
-        allegroProducts.append(prod)
+        try:
+            allegroProducts += AllegroTire(prod)
+        except (LookupError, ValueError) as e:
+            log.debug(repr(e))
+            continue
+
+    return allegroProducts
 
 
 if __name__ == '__main__':
-    parseXML('/home/daniel/Documents/1_praca/1_Freelance/1_handel/1_allegro/1_sklepy/LuckyStar/sklep.xml')
+    createAllegroProducts('/home/daniel/Documents/1_praca/1_Freelance/1_handel/1_allegro/1_sklepy/LuckyStar/sklep.xml')
