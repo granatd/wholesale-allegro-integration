@@ -2,7 +2,6 @@ import os
 import requests
 import logging as log
 import xml.etree.ElementTree as eT
-from main import getCategoryParams
 
 ns = {'ng': 'http://nowegumy.pl'}
 
@@ -72,6 +71,9 @@ class AllegroTire:
 
     def getSeason(self):
         return self.getValue('sezon')
+
+    def getTitle(self):
+        return self.__ngProd.find('ng:NAZWA', ns).text[0:49]
 
     def getAllegroCategory(self):
         if self.getType() == 'samochody osobowe':
@@ -191,4 +193,6 @@ def createAllegroProducts(xmlfile):
 
 
 if __name__ == '__main__':
+    from main import getCategoryParams
+
     createAllegroProducts('/home/daniel/Documents/1_praca/1_Freelance/1_handel/1_allegro/1_sklepy/LuckyStar/sklep.xml')

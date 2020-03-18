@@ -1,0 +1,291 @@
+DEBUG:__main__:REST request:
+-----------START-----------
+GET https://api.allegro.pl/sale/offers/9068419944
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1ODQ1OTA4MDgsInVzZXJfbmFtZSI6Ijc0Mzc5MzEzIiwianRpIjoiNTdkOTJhNzQtYjY1Yy00YzM5LTllMzYtZjU5M2I0MTI2MjlhIiwiY2xpZW50X2lkIjoiMTI5YmYyN2RiODUwNDQ2YTkxMDRhODhiYmZhMDJjNDEiLCJzY29wZSI6WyJhbGxlZ3JvX2FwaSJdfQ.j5Xyhy3KbFomZRIYBfQV0mVQnEgUFhzEo_1V6r3b_jg4k7gPB4Sc_crV06gJrLrartHBcPOhnKYx-Nq4oLkhnbm7KC5OFYimPyapUrQplDhS60HaQKY4tM7VbgRJ5RHlK3ek48SWBdNgTo9p1sgVctnc_hOxzpONvwRf9nGSWTnjsUHFx3mAb78ql7j5Ddu8g6olyMlcGyqwLJ6KV7JiCBHD6qQ0wJM5D-R0Hkd8Mh3uhBeuM4w18whyRcfyogcdDtMnBTtc1AseFQS6UyEu1ilckCLSTXRCQybdMWP9OUQt5A9fHSRcUmOukIHxvDTZ4p9dRqTIM_U_FRKzwguKzQ
+accept: application/vnd.allegro.public.v1+json
+content-type: application/vnd.allegro.public.v1+json
+None
+-----------END-----------
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): api.allegro.pl:443
+DEBUG:urllib3.connectionpool:https://api.allegro.pl:443 "GET /sale/offers/9068419944 HTTP/1.1" 200 None
+DEBUG:__main__:Response:
+{'additionalServices': None,
+ 'afterSalesServices': {'impliedWarranty': {'id': '95b451bf-7fd6-4d46-9bc1-ac6516eeb065'},
+                        'returnPolicy': {'id': 'f7b5005b-4b46-45d7-bab8-e17208729f2c'},
+                        'warranty': {'id': '593b3ed0-655c-40e6-acbc-7782351cca75'}},
+ 'attachments': [{'id': '74379313_MANUAL_a6fa0526c86a30230d374b90c8bb2d8b00cb629ed2e1911aa959895f02efb242'}],
+ 'category': {'id': '257689'},
+ 'compatibilityList': None,
+ 'contact': None,
+ 'createdAt': '2020-03-16T14:02:58.000Z',
+ 'delivery': {'additionalInfo': None,
+              'handlingTime': 'PT24H',
+              'shipmentDate': None,
+              'shippingRates': {'id': 'cde2d24a-ab38-461d-96da-ade36d99e7cf'}},
+ 'description': {'sections': [{'items': [{'content': '<h1>PROMOCJA!!! Kup 3 '
+                                                     'opony a czwartą '
+                                                     'dostaniesz '
+                                                     'gratis!</h1><p><b>*Oferta '
+                                                     'ograniczona czasowo lub '
+                                                     'do wyczerpania '
+                                                     'zapasów</b></p>',
+                                          'type': 'TEXT'}]},
+                              {'items': [{'content': '<p><b>Pełna nazwa:</b> '
+                                                     '3+1 LINGLONG 205/55R16 '
+                                                     'GREEN-Max HP010 91V '
+                                                     'TL</p><p><b>Model:</b> '
+                                                     'GREEN-Max '
+                                                     'HP010</p><p><b>Producent</b>: '
+                                                     'Linglong</p><p><b>Sezon: '
+                                                     '</b>letni</p>',
+                                          'type': 'TEXT'},
+                                         {'type': 'IMAGE',
+                                          'url': 'https://a.allegroimg.com/original/110e86/5986f75f44718dbe5556a025b655'}]},
+                              {'items': [{'content': '<p><b>GREEN-Max '
+                                                     'HP010</b> to opona UHP '
+                                                     'przeznaczona do '
+                                                     'samochodów osobowych. '
+                                                     'Zaprojektowana i '
+                                                     'wyprodukowana z użyciem '
+                                                     'najnowszych technologii '
+                                                     'w zakresie budowy, '
+                                                     'wzornictwa i trwałości '
+                                                     'komponentów. Na mokrej '
+                                                     'nawierzchni, centralna '
+                                                     'część bieżnika z '
+                                                     'głębokimi, głównymi '
+                                                     'rowkami obwodowymi i '
+                                                     'szeregiem mniejszych '
+                                                     'szczelin, sprawnie '
+                                                     'kieruje wodę do ramion i '
+                                                     'dalej na zewnątrz, '
+                                                     'zwiększając odporność na '
+                                                     'aquaplaning i '
+                                                     'bezpieczeństwo. '
+                                                     'Konstrukcja dużych '
+                                                     'klocków na bokach '
+                                                     'bieżnika opony GREEN-Max '
+                                                     'HP010 zwiększa '
+                                                     'powierzchnię styku z '
+                                                     'podłożem, zapewnia '
+                                                     'świetną przyczepność na '
+                                                     'suchej nawierzchni i '
+                                                     'efektywnie przenosi siłę '
+                                                     'napędową. Zapobiega '
+                                                     'również nierównomiernemu '
+                                                     'zużyciu. Szeroki wybór '
+                                                     'rozmiarów.</p>',
+                                          'type': 'TEXT'}]},
+                              {'items': [{'content': '<h2>Etykieta:</h2><p>Opory '
+                                                     'toczenia&nbsp;<b>C</b></p><p>Hamowanie '
+                                                     'na mokrym<b> '
+                                                     'B</b></p><p>Poziom '
+                                                     'hałasu<b>&nbsp;71 '
+                                                     'dB</b></p>',
+                                          'type': 'TEXT'}]},
+                              {'items': [{'type': 'IMAGE',
+                                          'url': 'https://a.allegroimg.com/original/03f3e9/360704d945da93214167c94843dc'},
+                                         {'content': '<h2>Jak czytać '
+                                                     'etykietę?</h2><p>Etykieta '
+                                                     'podzielona jest na trzy '
+                                                     'sekcje.</p><p><b>1. '
+                                                     'Efektywność paliwowa</b> '
+                                                     '- zależy od oporów '
+                                                     'toczenia, które wpływają '
+                                                     'na zużycie paliwa i '
+                                                     'emisję spalin.</p><p>A - '
+                                                     'najbardziej efektywna '
+                                                     'opona, o najmniejszych '
+                                                     'oporach toczenia, '
+                                                     'pozwoli zaoszczędzić '
+                                                     'paliwo, najniższa emisja '
+                                                     'spalin.</p><p>G - '
+                                                     'najmniej efektywna '
+                                                     'opona, o największych '
+                                                     'oporach toczenia, zużyje '
+                                                     'najwięcej paliwa, '
+                                                     'najwyższa emisja '
+                                                     'spalin.</p><p><b>2. '
+                                                     'Przyczepność na mokrej '
+                                                     'nawierzchni</b> - '
+                                                     'informuje o zdolności '
+                                                     'utrzymania przyczepności '
+                                                     'na mokrej '
+                                                     'nawierzchni.</p><p>A - '
+                                                     'najbezpieczniejsza '
+                                                     'opona, najkrótsza droga '
+                                                     'hamowania.</p><p>G - '
+                                                     'najgorsza przyczepność '
+                                                     'opony, najdłuższa droga '
+                                                     'hamowania.</p><p><b>3. '
+                                                     'Hałas</b> - określa '
+                                                     'hałas generowany przez '
+                                                     'opony przejeżdżającego '
+                                                     'samochodu. Poziom hałasu '
+                                                     'mierzony jest w '
+                                                     'decybelach (dB) i '
+                                                     'zobrazowany za pomocą '
+                                                     'trzystopniowej skali w '
+                                                     'postaci fal.</p><p>1 '
+                                                     'fala - najcichsza '
+                                                     'opona.</p><p>3 fale - '
+                                                     'najgłośniejsza '
+                                                     'opona.</p><p>Dodatkowo '
+                                                     'podawana jest także '
+                                                     'wysokość hałasu w '
+                                                     'dB.</p>',
+                                          'type': 'TEXT'}]},
+                              {'items': [{'content': '<h2>Oznaczenie opony: '
+                                                     '205/55R16</h2><p>Szerokość '
+                                                     '[mm] '
+                                                     '<b>205</b></p><p>Profil<b> '
+                                                     '55</b></p><p>Rozmiar '
+                                                     'felgi&nbsp;<b>16</b></p><p>Indeks '
+                                                     'nośności<b>&nbsp;91</b></p><p>Indeks '
+                                                     'prędkości<b> V</b></p>',
+                                          'type': 'TEXT'},
+                                         {'type': 'IMAGE',
+                                          'url': 'https://a.allegroimg.com/original/032d77/e284370c4633a51cc2e64ee9612a'}]},
+                              {'items': [{'type': 'IMAGE',
+                                          'url': 'https://a.allegroimg.com/original/0319c9/c1b56240439a9edb2596675f6a0d'},
+                                         {'content': '<h2>Pozostałe '
+                                                     'parametry:</h2><p>Waga&nbsp;<b>8,71</b></p><p>Objętość&nbsp;<b>0,072</b></p><p>EAN&nbsp;<b>6959956700400</b></p><p>Kod '
+                                                     'producenta&nbsp;<b>221001225</b></p><p>Głębokość '
+                                                     'bieżnika '
+                                                     '[mm]&nbsp;<b>7,8</b></p><p>Wysokość '
+                                                     'całkowita '
+                                                     '[mm]<b>&nbsp;632</b></p>',
+                                          'type': 'TEXT'}]},
+                              {'items': [{'content': '<h2>Gwarancja producenta '
+                                                     '- 2 lata:</h2><p>Warunki '
+                                                     'w załączniku: Dodatkowe '
+                                                     'informacje -&gt; '
+                                                     'Poradnik.pdf</p>',
+                                          'type': 'TEXT'}]},
+                              {'items': [{'content': '<h2>O firmie '
+                                                     'Linglong:</h2><p><b>Firma '
+                                                     'Shandong Linglong Tyre '
+                                                     'Co., Ltd</b>., powstała '
+                                                     'w 1975r. Jest wiodącym '
+                                                     'na rynku chińskim i '
+                                                     'uznanym na świecie '
+                                                     'producentem szerokiej '
+                                                     'gamy opon m.in. letnich, '
+                                                     'zimowych i '
+                                                     'wielosezonowych opon do '
+                                                     'samochodów osobowych i '
+                                                     'dostawczych, opon do '
+                                                     'samochodów terenowych, '
+                                                     'pickupów, SUV, a także '
+                                                     'opon przemysłowych m.in. '
+                                                     'do przyczep i lawet. '
+                                                     'Produkty pod marką '
+                                                     'Linglong są sprzedawane '
+                                                     'w ponad 180 krajach. '
+                                                     'Firma wspiera m.in jako '
+                                                     'oficjalny sponsor klub '
+                                                     'piłkarski Juventus '
+                                                     'Turyn. Bezpośrednim '
+                                                     'importerem opon marki '
+                                                     'Linglong w Polsce jest '
+                                                     'Lucky Star Polska Sp. z '
+                                                     'o.o.</p>',
+                                          'type': 'TEXT'}]},
+                              {'items': [{'content': '<h1>BONUS w '
+                                                     'pakiecie!!!</h1><h2>Koszulka '
+                                                     'Linglong za darmo!</h2>',
+                                          'type': 'TEXT'}]},
+                              {'items': [{'type': 'IMAGE',
+                                          'url': 'https://a.allegroimg.com/original/038fda/acf5f7b7444e8dd04004ce04befc'},
+                                         {'content': '<p>Kolor: '
+                                                     '<b>czarny</b></p><p>Rozmiar: '
+                                                     '<b>M</b></p>',
+                                          'type': 'TEXT'}]}]},
+ 'ean': None,
+ 'external': None,
+ 'id': '9068419944',
+ 'images': [{'url': 'https://a.allegroimg.com/original/110e86/5986f75f44718dbe5556a025b655'},
+            {'url': 'https://a.allegroimg.com/original/11b560/ae2f8b9e49d2aec207b5f657ea7b'},
+            {'url': 'https://a.allegroimg.com/original/03f3e9/360704d945da93214167c94843dc'},
+            {'url': 'https://a.allegroimg.com/original/038fda/acf5f7b7444e8dd04004ce04befc'},
+            {'url': 'https://a.allegroimg.com/original/032d77/e284370c4633a51cc2e64ee9612a'},
+            {'url': 'https://a.allegroimg.com/original/0319c9/c1b56240439a9edb2596675f6a0d'}],
+ 'location': {'city': 'Łódź',
+              'countryCode': 'PL',
+              'postCode': '90-619',
+              'province': 'LODZKIE'},
+ 'name': '3+1 LINGLONG 205/55R16 GREEN-Max HP010 91V TL',
+ 'parameters': [{'id': '11323',
+                 'rangeValue': None,
+                 'values': [],
+                 'valuesIds': ['11323_1']},
+                {'id': '9300',
+                 'rangeValue': None,
+                 'values': [],
+                 'valuesIds': ['9300_54']},
+                {'id': '15808',
+                 'rangeValue': None,
+                 'values': [],
+                 'valuesIds': ['15808_3']},
+                {'id': '217737',
+                 'rangeValue': None,
+                 'values': ['GREEN-Max HP010'],
+                 'valuesIds': []},
+                {'id': '224017',
+                 'rangeValue': None,
+                 'values': ['221001225'],
+                 'valuesIds': []},
+                {'id': '345',
+                 'rangeValue': None,
+                 'values': [],
+                 'valuesIds': ['345_9']},
+                {'id': '344',
+                 'rangeValue': None,
+                 'values': [],
+                 'valuesIds': ['344_64']},
+                {'id': '127088',
+                 'rangeValue': None,
+                 'values': [],
+                 'valuesIds': ['127089_9']},
+                {'id': '9301',
+                 'rangeValue': None,
+                 'values': [],
+                 'valuesIds': ['9301_16']},
+                {'id': '24214',
+                 'rangeValue': None,
+                 'values': ['91'],
+                 'valuesIds': []},
+                {'id': '129189',
+                 'rangeValue': None,
+                 'values': [],
+                 'valuesIds': ['129189_3']},
+                {'id': '129190',
+                 'rangeValue': None,
+                 'values': [],
+                 'valuesIds': ['129190_2']},
+                {'id': '129191',
+                 'rangeValue': None,
+                 'values': [],
+                 'valuesIds': ['129191_12']}],
+ 'payments': {'invoice': 'VAT'},
+ 'product': None,
+ 'promotion': {'bold': False,
+               'departmentPage': False,
+               'emphasized': True,
+               'emphasizedHighlightBoldPackage': False,
+               'highlight': False},
+ 'publication': {'duration': 'PT240H',
+                 'endedBy': None,
+                 'endingAt': '2020-03-26T14:08:11.000Z',
+                 'republish': False,
+                 'startingAt': None,
+                 'status': 'ACTIVE'},
+ 'sellingMode': {'format': 'BUY_NOW',
+                 'minimalPrice': None,
+                 'price': {'amount': '609', 'currency': 'PLN'},
+                 'startingPrice': None},
+ 'sizeTable': None,
+ 'stock': {'available': 2, 'unit': 'UNIT'},
+ 'tecdocSpecification': None,
+ 'updatedAt': '2020-03-16T14:08:12.392Z',
+ 'validation': {'errors': [], 'validatedAt': '2020-03-16T14:08:11.347Z'}}
