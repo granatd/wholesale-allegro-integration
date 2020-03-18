@@ -49,7 +49,7 @@ class AllegroTire:
     __availableParams = None
     __paramsToSet = None
 
-    def getImages(self):
+    def getWholesaleImages(self):
         photos = list()
         for desc in self.__ngProd.iter('ZDJECIA'):
             photos += desc['BIG'].text

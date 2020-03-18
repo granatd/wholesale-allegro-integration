@@ -170,7 +170,7 @@ def getMyOffers(name=None, status='ACTIVE', limit=5):
 def postImages(allegroProduct):
     _rest('POST', 'https://api.allegro.pl/sale/images',
           data={
-              'url': '{}'.format(img) for img in allegroProduct.getImages()
+              'url': '{}'.format(img) for img in allegroProduct.getWholesaleImages()
           })
 
 
@@ -186,7 +186,7 @@ def main():
     #                                  '1_allegro/1_sklepy/LuckyStar/sklep.xml')
     # prod = products.pop()
     # postImages(prod)
-    getOfferDetails('9068419944')
+    # getOfferDetails('9068419944')
 
 
 if __name__ == '__main__':
