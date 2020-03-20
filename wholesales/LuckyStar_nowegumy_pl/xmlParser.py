@@ -56,13 +56,70 @@ class LuckyStar:
         raise LookupError('No {} field!'.format(key))
 
     def getType(self):
-        return self.getDescValue('typ')
+        return self.getDescValue('Typ')
 
     def getSeason(self):
-        return self.getDescValue('sezon')
+        return self.getDescValue('Sezon')
 
     def getTitle(self):
         return self.products.find('ng:NAZWA', ns).text[0:49]
+
+    def getProducer(self):
+        return self.getDescValue('Producent')
+
+    def getModel(self):
+        return self.getDescValue('Nazwa')
+
+    def getSize(self):
+        return self.getDescValue('Rozmiar')
+
+    def getWidth(self):
+        return self.getDescValue('Szerokość')
+
+    def getHeight(self):
+        return self.getDescValue('Wysokość')
+
+    def getRimSize(self):
+        return self.getDescValue('Rozmiar felgi')
+
+    def getVmax(self):
+        return self.getDescValue('Indeks prędkości')
+
+    def getLoadIndex(self):
+        return self.getDescValue('Indeks nośności')
+
+    def getProducerCode(self):
+        return self.getDescValue('Kod producenta')
+
+    def getEAN(self):
+        return self.getDescValue('EAN')
+
+    def getDestination(self):
+        return self.getDescValue('Identyfikator')
+
+    def getWeight(self):
+        return self.getDescValue('Waga')
+
+    def getVolumeSize(self):
+        return self.getDescValue('Objętość')
+
+    def getRotationResistance(self):
+        return self.getDescValue('Opory toczenia')
+
+    def getWetTraction(self):
+        return self.getDescValue('Hamowanie na mokrym')
+
+    def getNoiseLevel(self):
+        return self.getDescValue('Poziom hałasu')
+
+    def getOverallInfo(self):
+        return self.getDescValue('Informacje ogólne')
+
+    def getWarranty(self):
+        return self.getDescValue('Gwarancja')
+
+    def getProducerInfo(self):
+        return self.getDescValue('O ' + self.getProducer())
 
     def filterProducts(self):
         products = self.products
@@ -84,5 +141,7 @@ class LuckyStar:
 
         for prod in products:
             price = prod.find('ng:CENA_BRUTTO', ns)
-            price.text = str(float(price.text) * (percent/100))
+            price.text = str(float(price.text) * (1 + percent/100))
 
+    def getProduct(self):
+        return self.products.pop()

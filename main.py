@@ -1,34 +1,33 @@
 import os
 import logging as log
-from marketplaces.allegro.auctions import RestAPI
+from wholesales.LuckyStar_nowegumy_pl.xmlParser import LuckyStar
+from marketplaces.allegro.auctions import RestAPI, Auction
+from marketplaces.allegro.integrations.LuckyStarProductIntegrator import LuckyStarProductIntegrator
 
 log.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 log = log.getLogger(__name__)
 
 
-def createAllegroProducts():
+def LuckyStarProducts():
+    products = LuckyStar()
 
-    try:
-        allegroProducts += AllegroTire(prod)
-    except (LookupError, ValueError) as e:
-        log.debug(repr(e))
-        continue
+    products.filterProducts()
+    products.addOverhead(-8)
 
-    return allegroProducts
+    return products
 
 
 def main():
     RestAPI.deviceFlowOAuth()
     # RestAPI.getShippingRates()
     # RestAPI.getCategoryParams('257687')
-    products = createProductParams('/home/daniel/Documents/1_praca/1_Freelance/1_handel/'
-                                      '1_allegro/1_sklepy/LuckyStar/sklep.xml')
-    prod = products.pop()
-
     # RestAPI.getOfferDetails('9068419944')
+    products = LuckyStarProducts()
+    prod = products.getProduct()
+    integrator = LuckyStarProductIntegrator(prod)
 
-    auction = Auction(prod)
-    auction.allegroPost()
+    auction = Auction(integrator)
+    auction.push()
 
 
 if __name__ == '__main__':

@@ -12,86 +12,58 @@ log = log.getLogger(__name__)
 
 
 class Auction:
-    def __init__(self, wholesaleProductIntegrator):
+    def __init__(self, integrator):
         self.restMod = RestAPI()
-        self.integrator = wholesaleProductIntegrator
+        self.integrator = integrator
 
-        self.prodCategory = wholesaleProductIntegrator.getCategory()
+        self.prodCategory = integrator.getCategory()
         self.prodCategoryParams = self.restMod.getCategoryParams(self.prodCategory)
 
         self.setCategory(self.prodCategory)
-        self.setTitle(wholesaleProductIntegrator.getTitle())
-        self.setImages(wholesaleProductIntegrator.getImages())
-        self.setDescription(wholesaleProductIntegrator.getDesc())
-        self.setStockCount(wholesaleProductIntegrator.getStockCount())
-        self.setParams(wholesaleProductIntegrator.getParams(self.prodCategoryParams))
+        self.setTitle(integrator.getTitle())
+        self.setImages(integrator.getImages())
+        self.setDescription(integrator.getDesc())
+        self.setStockCount(integrator.getStockCount())
+        self.setParams(integrator.getParams(self.prodCategoryParams))
 
     restMod = None
     integrator = None
     template = {
-         'additionalServices': None,
-         'afterSalesServices': {'impliedWarranty': {'id': '95b451bf-7fd6-4d46-9bc1-ac6516eeb065'},
-                                'returnPolicy': {'id': 'f7b5005b-4b46-45d7-bab8-e17208729f2c'},
-                                'warranty': {'id': '593b3ed0-655c-40e6-acbc-7782351cca75'}},
-         'attachments': None,
-         'category': None,          # to fill
-         'compatibilityList': None,
-         'contact': None,
-         'delivery': {'additionalInfo': None,
-                      'handlingTime': 'PT24H',  # to customize
-                      'shipmentDate': None,
-                      'shippingRates': {'id': 'cde2d24a-ab38-461d-96da-ade36d99e7cf'}},
-         'description': {"sections": [
-            {  # Section 1
-                "items": [{
-                    "type": "TEXT",
-                    "content": None,
-                }]
-            }, {  # Section 2
-                "items": [{
-                    "type": "TEXT",
-                    "content": None,
-                }, {
-                    "type": "IMAGE",
-                    "url": None,
-                }]
-            }, {  # Section 3
-                "items": [{
-                    "type": "TEXT",
-                    "content": None,
-                }]
-            }, {  # Section 4
-                "items": [{
-                    "type": "IMAGE",
-                    "url": None,
-                }, {
-                    "type": "IMAGE",
-                    "url": None,
-                }]
-            }
-         ]},
-         'ean': None,
-         'images': None,
-         'location': {'city': 'Łódź',
-                      'countryCode': 'PL',
-                      'postCode': '90-619',
-                      'province': 'LODZKIE'},
-         'name': None,
-         'parameters': None,
-         'payments': {'invoice': 'VAT'},
-         'product': None,
-         'publication': {'duration': None,
-                         'endedBy': None,
-                         'endingAt': None,
-                         'republish': True,
-                         'startingAt': None,
-                         'status': 'ACTIVE'},
-         'sellingMode': {'format': 'BUY_NOW',
-                         'minimalPrice': None,
-                         'price': {'amount': '609', 'currency': 'PLN'},
-                         'startingPrice': None},
-         'sizeTable': None,
-         'stock': {'available': 2, 'unit': 'UNIT'},
+        'additionalServices': None,
+        'afterSalesServices': {'impliedWarranty': {'id': '95b451bf-7fd6-4d46-9bc1-ac6516eeb065'},
+                               'returnPolicy': {'id': 'f7b5005b-4b46-45d7-bab8-e17208729f2c'},
+                               'warranty': {'id': '593b3ed0-655c-40e6-acbc-7782351cca75'}},
+        'attachments': None,
+        'category': None,
+        'compatibilityList': None,
+        'contact': None,
+        'delivery': {'additionalInfo': None,
+                     'handlingTime': 'PT24H',
+                     'shipmentDate': None,
+                     'shippingRates': {'id': 'cde2d24a-ab38-461d-96da-ade36d99e7cf'}},
+        'description': None,
+        'ean': None,
+        'images': None,
+        'location': {'city': 'Łódź',
+                     'countryCode': 'PL',
+                     'postCode': '90-619',
+                     'province': 'LODZKIE'},
+        'name': None,
+        'parameters': None,
+        'payments': {'invoice': 'VAT'},
+        'product': None,
+        'publication': {'duration': None,
+                        'endedBy': None,
+                        'endingAt': None,
+                        'republish': True,
+                        'startingAt': None,
+                        'status': 'ACTIVE'},
+        'sellingMode': {'format': 'BUY_NOW',
+                        'minimalPrice': None,
+                        'price': {'amount': '609', 'currency': 'PLN'},
+                        'startingPrice': None},
+        'sizeTable': None,
+        'stock': {'available': 2, 'unit': 'UNIT'},
     }
 
     def setTitle(self, name):
@@ -111,10 +83,6 @@ class Auction:
 
     def setStockCount(self, count):
         self.template['stock'] = str(count)
-
-
-class TireAuction(Auction):
-    wholesaleIntegration = None
 
 
 class RestAPI:
@@ -168,10 +136,10 @@ class RestAPI:
                       'Must get new one...')
 
         resp = RestAPI._rest('POST', OAuthUri,
-                     headers={
-                         'Authorization': 'Basic ' + RestAPI.OAuthCodeEnc,
-                         'Content-Type': contentType},
-                     data='client_id=' + clientID)
+                             headers={
+                                 'Authorization': 'Basic ' + RestAPI.OAuthCodeEnc,
+                                 'Content-Type': contentType},
+                             data='client_id=' + clientID)
 
         OAuthTokenUri += 'device_code=' + resp['device_code']
 
@@ -179,7 +147,7 @@ class RestAPI:
               ' <<< CLICK HERE TO CONFIRM ACCESS GRANT')
 
         resp = RestAPI._rest('POST', OAuthTokenUri,
-                     headers={'Authorization': 'Basic ' + RestAPI.OAuthCodeEnc})
+                             headers={'Authorization': 'Basic ' + RestAPI.OAuthCodeEnc})
 
         RestAPI.saveToken(resp)
         RestAPI.tokenObj = RestAPI.readToken()
@@ -194,7 +162,7 @@ class RestAPI:
             .format(RestAPI.tokenObj['refresh_token'])
 
         resp = RestAPI._rest('POST', resource,
-                     headers={'Authorization': 'Basic ' + RestAPI.OAuthCodeEnc})
+                             headers={'Authorization': 'Basic ' + RestAPI.OAuthCodeEnc})
         RestAPI.saveToken(resp)
         RestAPI.tokenObj = RestAPI.readToken()
 
@@ -267,7 +235,7 @@ class RestAPI:
     @staticmethod
     def getOffers(sellerID, phrase, limit=5):
         return RestAPI._rest('GET', 'https://api.allegro.pl/offers/listing?seller.id={}&phrase={}&limit={}'
-                     .format(sellerID, phrase, limit), bearer=True)
+                             .format(sellerID, phrase, limit), bearer=True)
 
     @staticmethod
     def getMyOffers(name=None, status='ACTIVE', limit=5):
@@ -283,10 +251,21 @@ class RestAPI:
             return
 
         RestAPI._rest('POST', 'https://api.allegro.pl/sale/images',
-              data={
-                  'url': '{}'.format(img) for img in images
-              })
+                      data={
+                          'url': '{}'.format(img) for img in images
+                      })
 
     @staticmethod
     def getOfferDetails(offerID):
         return RestAPI._rest('GET', 'https://api.allegro.pl/sale/offers/{}'.format(offerID), bearer=True)
+
+    @staticmethod
+    def push():
+        resp = RestAPI._rest('POST', 'https://api.allegro.pl/sale/offers', data=RestAPI.template, bearer=True)
+        errors = resp['validation']['errors']
+        if errors:
+            raise IOError('errors:\n {}'.format(repr(errors)))
+
+    @staticmethod
+    def publish():
+        pass
