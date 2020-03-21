@@ -1,6 +1,6 @@
 import os
 import logging as log
-from wholesales.LuckyStar_nowegumy_pl.xmlParser import LuckyStar
+from wholesales.LuckyStar_nowegumy_pl.xmlParser import LuckyStarWholesale
 from marketplaces.allegro.auctions import RestAPI, Auction
 from marketplaces.allegro.integrations.LuckyStarProductIntegrator import LuckyStarProductIntegrator
 
@@ -8,13 +8,13 @@ log.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 log = log.getLogger(__name__)
 
 
-def LuckyStarProducts():
-    products = LuckyStar()
+def createLuckyStarWholesale():
+    wholesale = LuckyStarWholesale()
 
-    products.filterProducts()
-    products.addOverhead(-8)
+    wholesale.filterProducts()
+    wholesale.addOverhead(-8)
 
-    return products
+    return wholesale
 
 
 def main():
@@ -22,12 +22,23 @@ def main():
     # RestAPI.getShippingRates()
     # RestAPI.getCategoryParams('257687')
     # RestAPI.getOfferDetails('9068419944')
-    products = LuckyStarProducts()
-    prod = products.getProduct()
-    integrator = LuckyStarProductIntegrator(prod)
+    wholesale = createLuckyStarWholesale()
+    for i in range(7):
+        try:
+            prod = wholesale.getProduct()
+            integrator = LuckyStarProductIntegrator(prod)
+        except IndexError as e:
+            log.debug('No products left in a wholesale!')
+            break
 
-    auction = Auction(integrator)
-    auction.push()
+        try:
+            auction = Auction(integrator)
+        except ValueError as e:
+            log.debug('Auction creation error:\n'
+                      '{}'.format(repr(e)))
+            continue
+
+        # auction.RestAPI.push()
 
 
 if __name__ == '__main__':

@@ -1,4 +1,5 @@
 import os
+import traceback
 import logging as log
 
 log.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
@@ -24,7 +25,7 @@ class LuckyStarProductIntegrator:
         'Przyczepność na mokrej nawierzchni': 'Hamowanie na mokrym',
         'Hałas zewnętrzny': 'Poziom hałasu',
         'Rodzaj': 'Rodzaj',
-        'Sezon': 'Indentyfikator',
+        'Sezon': 'Identyfikator',
         'Waga (z opakowaniem)': 'Waga',
         # 'Bieżnik': 'Głębokość bieżnika [mm]',
         # 'Przeznaczenie': 'Typ', # np. terenowe, zimowe, autobus
@@ -33,19 +34,19 @@ class LuckyStarProductIntegrator:
         #  'Liczba płócien (PR)': 'Opis-> warstwowa',
         # 'Konstrukcja': 'Opis/Informacje ogólne/Przeznaczenie/Techniczne cechy opony -> radialna, diagonalna',
         'Typ motocykla': None,
-        'informacje dodatkowe': None,
+        'Informacje dodatkowe': None,
     }
 
     description = {"sections": [
             {  # Section 1
                 "items": [{
                     "type": "TEXT",
-                    "content": None,
+                    "content": '',
                 }]
             }, {  # Section 2
                 "items": [{
                     "type": "TEXT",
-                    "content": None,
+                    "content": '',
                 }, {
                     "type": "IMAGE",
                     "url": None,
@@ -53,7 +54,7 @@ class LuckyStarProductIntegrator:
             }, {  # Section 3
                 "items": [{
                     "type": "TEXT",
-                    "content": None,
+                    "content": '',
                 }]
             }, {  # Section 4
                 "items": [{
@@ -64,7 +65,7 @@ class LuckyStarProductIntegrator:
                     "url": None,
                 }]
             }
-        ]},
+        ]}
 
     prod = None
     title = None
@@ -82,43 +83,52 @@ class LuckyStarProductIntegrator:
         return self.images
 
     def getStockCount(self):
-        self.stockCount = self.prod.getStockCount
+        self.stockCount = self.prod.getStockCount()
         return self.stockCount
 
     def getCategory(self):
+        season = None
+        prodType = None
         self.category = None
 
-        if self.prod.getType() == 'samochody osobowe':
-            if self.prod.getSeason() is None:
+        try:
+            prodType = self.prod.getType().lower()
+            season = self.prod.getSeason().lower()
+        except LookupError as e:
+            if str(e).lower() == 'typ':
+                raise LookupError('Category not found!')
+
+        if prodType == 'samochody osobowe':
+            if season is None:
                 self.category = '257689'
-            elif self.prod.getSeason() == 'letnie':
+            elif season == 'letnie':
                 self.category = '257689'
-            elif self.prod.getSeason() == 'całoroczne':
+            elif season == 'całoroczne':
                 self.category = '257692'
-        elif self.prod.getType() == 'samochody terenowe, SUV, Pickup':
-            if self.prod.getSeason() is None:
+        elif prodType == 'samochody terenowe, SUV, Pickup':
+            if season is None:
                 self.category = '257694'
-            elif self.prod.getSeason() == 'letnie':
+            elif season == 'letnie':
                 self.category = '257694'
-            elif self.prod.getSeason() == 'całoroczne':
+            elif season == 'całoroczne':
                 self.category = '257696'
-        elif self.prod.getType() == 'samochody dostawcze':
-            if self.prod.getSeason() is None:
+        elif prodType == 'samochody dostawcze':
+            if season is None:
                 self.category = '257698'
-            elif self.prod.getSeason() == 'letnie':
+            elif season == 'letnie':
                 self.category = '257698'
-            elif self.prod.getSeason() == 'całoroczne':
+            elif season == 'całoroczne':
                 self.category = '257700'
-        elif self.prod.getType() == 'przemysłowe':
-            if self.prod.getSeason() is None:
+        elif prodType == 'przemysłowe':
+            if season is None:
                 self.category = None
-            elif self.prod.getSeason() == 'letnie':
+            elif season == 'letnie':
                 self.category = None
-            elif self.prod.getSeason() == 'całoroczne':
+            elif season == 'całoroczne':
                 self.category = None
 
         if self.category is None:
-            raise ValueError('Value not found!')
+            raise ValueError('Unrecognized category!')
 
         return self.category
 
@@ -130,16 +140,33 @@ class LuckyStarProductIntegrator:
             try:
                 if param['name'].lower() == 'stan' or \
                         param['name'].lower() == 'liczba opon w ofercie':
-                    params += {
+                    params.append({
                         'id': param['id'],
                         'valuesIds': [
                             param['dictionary'][0]['id'],
                         ],
                         'values': [],
                         'rangeValue': None
-                    }
-                elif (param['type'] is 'float' or
-                      param['type'] is 'int') and \
+                    })
+                elif param['type'].lower() == 'dictionary':
+                    valueIds = list()
+                    for item in param['dictionary']:
+                        if item['value'] == self.prod.getDescValue(self.allegro2ngMap[param['name']]):
+                            valueIds.append(item['id'])
+                            if param['restrictions']['multipleChoices'] is False:
+                                break
+                    if param['required'] is True and not valueIds:
+                        valueIds.append(param['dictionary'][-1]['id'])
+
+                    params.append({
+                        'id': param['id'],
+                        'valuesIds': valueIds,
+                        'values': [],
+                        'rangeValue': None
+                    })
+
+                elif (param['type'].lower() == 'float' or
+                      param['type'].lower() == 'integer') and \
                         param['restrictions']['range'] is False:
                     val = float(self.prod.getDescValue(self.allegro2ngMap[param['name']]))
                     if val < param['restrictions']['min']:
@@ -147,21 +174,21 @@ class LuckyStarProductIntegrator:
                     elif val > param['restrictions']['max']:
                         val = param['restrictions']['max']
 
-                    params += {
+                    params.append({
                         'id': param['id'],
                         'valuesIds': [],
                         'values': val,
                         'rangeValue': None
-                    }
-                elif param['type'] is 'string':
-                    params += {
+                    })
+                elif param['type'].lower() is 'string':
+                    params.append({
                         'id': param['id'],
                         'valuesIds': [],
                         'values': self.prod.getDescValue(self.allegro2ngMap[param['name']]),
                         'rangeValue': None
-                    }
+                    })
             except LookupError as e:
-                log.debug(repr(e))
+                traceback.print_tb(e.__traceback__)
                 continue
 
         self.params = {'parameters': params}
@@ -170,7 +197,7 @@ class LuckyStarProductIntegrator:
     def getDesc(self):
         section1 = self.description['sections'][0]
         item1 = section1['items'][0]
-        item1['content'] = '<p><b>Pełna nazwa:</b> {}</p>\n'.format(self.prod.getTitle())
+        item1['content'] += '<p><b>Pełna nazwa:</b> {}</p>\n'.format(self.prod.getTitle())
 
         try:
             item1['content'] += '<p><b>Producent:</b> {}</p>\n'.format(self.prod.getProducer())
@@ -201,7 +228,7 @@ class LuckyStarProductIntegrator:
             log.debug(repr(e))
 
         try:
-            item1['content'] = '<p><b>Typ:</b> {}</p>\n'.format(self.prod.getType())
+            item1['content'] += '<p><b>Typ:</b> {}</p>\n'.format(self.prod.getType())
         except LookupError as e:
             log.debug(repr(e))
 
@@ -265,22 +292,25 @@ class LuckyStarProductIntegrator:
         except LookupError as e:
             log.debug(repr(e))
 
-        item2 = section2['items'][1]
-        item2['url'] = self.images[0]
+        if len(self.images) > 0:
+            item2 = section2['items'][1]
+            item2['url'] = self.images[0]
 
         section3 = self.description['sections'][2]
         item1 = section3['items'][0]
 
         try:
-            item1['content'] = '<p><b>Informacje ogólne:</b>\n{}</p>\n'.format(self.prod.getOverallInfo())
+            item1['content'] += '<p><b>Informacje ogólne:</b>\n{}</p>\n'.format(self.prod.getOverallInfo())
         except LookupError as e:
             log.debug(repr(e))
 
-        section4 = self.description['sections'][3]
-        item1 = section4['items'][0]
-        item1['url'] = self.images[1]
+        if len(self.images) > 1:
+            section4 = self.description['sections'][3]
+            item1 = section4['items'][0]
+            item1['url'] = self.images[1]
 
-        item2 = section2['items'][1]
-        item2['url'] = self.images[2]
+        if len(self.images) > 2:
+            item2 = section2['items'][1]
+            item2['url'] = self.images[2]
 
         return self.description

@@ -26,6 +26,9 @@ class Auction:
         self.setStockCount(integrator.getStockCount())
         self.setParams(integrator.getParams(self.prodCategoryParams))
 
+        log.debug('\n\nCreated template:\n')
+        log.debug(pformat(self.template))
+
     restMod = None
     integrator = None
     template = {
@@ -97,7 +100,7 @@ class RestAPI:
         """
         Logs REST request in pretty, readable format
         """
-        log.debug('REST request:\n{}\n{}\r\n{}\r\n{}\r\n{}'.format(
+        log.debug('\nREST request:\n{}\n{}\r\n{}\r\n{}\r\n{}'.format(
             '-----------START-----------',
             req.method + ' ' + req.url,
             '\r\n'.join('{}: {}'.format(k, v) for k, v in req.headers.items()),
@@ -113,9 +116,9 @@ class RestAPI:
         return RestAPI.tokenObj
 
     @staticmethod
-    def saveToken():
+    def saveToken(tokenObj):
         with open('allegro.token', 'wb') as tokenFile:
-            pickle.dump(RestAPI.tokenObj, tokenFile)
+            pickle.dump(tokenObj, tokenFile)
 
     @staticmethod
     def deviceFlowOAuth():
@@ -143,8 +146,8 @@ class RestAPI:
 
         OAuthTokenUri += 'device_code=' + resp['device_code']
 
-        print('CLICK HERE TO CONFIRM ACCESS GRANT >>> ' + resp['verification_uri_complete'] +
-              ' <<< CLICK HERE TO CONFIRM ACCESS GRANT')
+        print('CLICK HERE TO CONFIRM ACCESS GRANT >>>>>>>>>>>>>>>>>>>> ' + resp['verification_uri_complete'] +
+              ' <<<<<<<<<<<<<<<<<<<< CLICK HERE TO CONFIRM ACCESS GRANT')
 
         resp = RestAPI._rest('POST', OAuthTokenUri,
                              headers={'Authorization': 'Basic ' + RestAPI.OAuthCodeEnc})
