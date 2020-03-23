@@ -189,7 +189,7 @@ class LuckyStarProductIntegrator:
                         'rangeValue': None
                     })
             except LookupError as e:
-                log.debug(repr(e))
+                log.debug('\'{}\' {}'.format(param['name'], repr(e)))
                 # print('\n[Backtrace from getting \'{}\' parameter:]'.format(param['name']))
                 # traceback.print_tb(e.__traceback__)
                 continue
