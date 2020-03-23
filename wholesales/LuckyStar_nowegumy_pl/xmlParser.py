@@ -56,6 +56,9 @@ class LuckyStarWholesale:
             price = prod.find('ng:CENA_BRUTTO', ns)
             price.text = str(float(price.text) * (1 + percent/100))
 
+            price = prod.find('ng:CENA_NETTO', ns)
+            price.text = str(float(price.text) * (1 + percent / 100))
+
     def getProduct(self):
         self.product = LuckyStarProduct(self.products.pop())
         return self.product
