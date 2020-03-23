@@ -80,6 +80,12 @@ class LuckyStarProductIntegrator:
         self.title = self.prod.getTitle()
         return self.title
 
+    def getPrice(self):
+        if self.price is None:
+            self.price = self.prod.getPrice()
+
+        return self.price
+
     def getImages(self):
         self.images = self.prod.getImages()
         return self.images

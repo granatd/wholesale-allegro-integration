@@ -79,6 +79,9 @@ class LuckyStarProduct:
 
         return images
 
+    def getPrice(self):
+        return self.product.find('ng:CENA_BRUTTO', ns)
+
     def getTitle(self):
         return self.product.find('ng:NAZWA', ns).text[0:49]
 

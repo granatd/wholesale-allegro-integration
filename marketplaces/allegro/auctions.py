@@ -21,6 +21,7 @@ class Auction:
         self.prodCategoryParams = self.restMod.getCategoryParams(self.prodCategory)
 
         self.setCategory(self.prodCategory)
+        self.setPrice(integrator.getPrice())
         self.setTitle(integrator.getTitle())
         self.setImages(integrator.getImages())
         self.setDescription(integrator.getDesc())
@@ -87,6 +88,9 @@ class Auction:
 
     def setStockCount(self, count):
         self.template['stock'] = str(count)
+
+    def setPrice(self, price):
+        self.temmplate['sellingMode']['price'] = price
 
 
 class RestAPI:
