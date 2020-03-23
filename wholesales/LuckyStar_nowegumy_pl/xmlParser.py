@@ -11,11 +11,19 @@ log = log.getLogger(__name__)
 
 
 class LuckyStarWholesale:
-    xmlFile = 'sklep.xml'
-    product = None
-    products = list()
-    categories = list()
-    producers = list()
+
+    def __init__(self):
+        self.xmlFile = 'sklep.xml'
+        if not os.path.isfile(self.xmlFile):
+            self.fetchXML()
+
+        self.product = None
+
+        self.tree = eT.parse(self.xmlFile)
+        self.root = self.tree.getroot()
+        self.products = self.root.find('ng:PRODUKTY', ns).findall('ng:PRODUKT', ns)
+        self.categories = self.root.find('ng:KATEGORIE', ns).findall('ng:KATEGORIA', ns)
+        self.producers = self.root.find('ng:PRODUCENCI', ns).findall('ng:PRODUCENT', ns)
 
     def fetchXML(self):
         url = 'https://xml.nowegumy.pl/38c07d9eb6f585cb2e363aa8d83443b1b9fcc722/sklep.xml'
@@ -24,15 +32,6 @@ class LuckyStarWholesale:
         with open('sklep.xml', 'wb') as f:
             f.write(resp.content)
 
-    def __init__(self):
-        if not os.path.isfile(self.xmlFile):
-            self.fetchXML()
-
-        self.tree = eT.parse(self.xmlFile)
-        self.root = self.tree.getroot()
-        self.products = self.root.find('ng:PRODUKTY', ns).findall('ng:PRODUKT', ns)
-        self.categories = self.root.find('ng:KATEGORIE', ns).findall('ng:KATEGORIA', ns)
-        self.producers = self.root.find('ng:PRODUCENCI', ns).findall('ng:PRODUCENT', ns)
 
     def filterProducts(self):
         products = self.products

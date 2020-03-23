@@ -13,71 +13,74 @@ class LuckyStarProductIntegrator:
     def __init__(self, prod):
         self.prod = prod
 
-    allegro2ngMap = {
-        'Marka': 'Producent',
-        'Model': None,
-        'Kod producenta': 'Kod producenta',
-        'Szerokość opony': 'Szerokość',
-        'Profil opony': 'Wysokość',
-        'Średnica': 'Rozmiar felgi',
-        'Rok produkcji': None,
-        'Indeks prędkości': 'Indeks prędkości',
-        'Indeks nośności': 'Indeks nośności',
-        'Opór toczenia': 'Opory toczenia',
-        'Przyczepność na mokrej nawierzchni': 'Hamowanie na mokrym',
-        'Hałas zewnętrzny': 'Poziom hałasu',
-        'Rodzaj': 'Rodzaj',
-        'Sezon': 'Identyfikator',
-        'Waga (z opakowaniem)': 'Waga',
-        # 'Bieżnik': 'Głębokość bieżnika [mm]',
-        # 'Przeznaczenie': 'Typ', # np. terenowe, zimowe, autobus
-        # 'Rodzaj': 'Opis -> bezdętkowa',  # np. bez/dętkowe
-        #  'Oś': None, # np. prowadząca, napędowa, naczepowa, uniwersalna
-        #  'Liczba płócien (PR)': 'Opis-> warstwowa',
-        # 'Konstrukcja': 'Opis/Informacje ogólne/Przeznaczenie/Techniczne cechy opony -> radialna, diagonalna',
-        'Typ motocykla': None,
-        'Informacje dodatkowe': None,
-    }
+        self.allegro2ngMap = {
+            'Marka': 'Producent',
+            'Model': None,
+            'Kod producenta': 'Kod producenta',
+            'Szerokość opony': 'Szerokość',
+            'Profil opony': 'Wysokość',
+            'Średnica': 'Rozmiar felgi',
+            'Rok produkcji': None,
+            'Indeks prędkości': 'Indeks prędkości',
+            'Indeks nośności': 'Indeks nośności',
+            'Opór toczenia': 'Opory toczenia',
+            'Przyczepność na mokrej nawierzchni': 'Hamowanie na mokrym',
+            'Hałas zewnętrzny': 'Poziom hałasu',
+            'Rodzaj': 'Rodzaj',
+            'Sezon': 'Identyfikator',
+            'Waga (z opakowaniem)': 'Waga',
+            # 'Bieżnik': 'Głębokość bieżnika [mm]',
+            # 'Przeznaczenie': 'Typ', # np. terenowe, zimowe, autobus
+            # 'Rodzaj': 'Opis -> bezdętkowa',  # np. bez/dętkowe
+            #  'Oś': None, # np. prowadząca, napędowa, naczepowa, uniwersalna
+            #  'Liczba płócien (PR)': 'Opis-> warstwowa',
+            # 'Konstrukcja': 'Opis/Informacje ogólne/Przeznaczenie/Techniczne cechy opony -> radialna, diagonalna',
+            'Typ motocykla': None,
+            'Informacje dodatkowe': None,
+        }
 
-    description = {"sections": [
-            {  # Section 1
-                "items": [{
-                    "type": "TEXT",
-                    "content": '',
-                }]
-            }, {  # Section 2
-                "items": [{
-                    "type": "TEXT",
-                    "content": '',
-                }, {
-                    "type": "IMAGE",
-                    "url": None,
-                }]
-            }, {  # Section 3
-                "items": [{
-                    "type": "TEXT",
-                    "content": '',
-                }]
-            }, {  # Section 4
-                "items": [{
-                    "type": "IMAGE",
-                    "url": None,
-                }, {
-                    "type": "IMAGE",
-                    "url": None,
-                }]
-            }
-        ]}
+        self.description = {"sections": [
+                {  # Section 1
+                    "items": [{
+                        "type": "TEXT",
+                        "content": '',
+                    }]
+                }, {  # Section 2
+                    "items": [{
+                        "type": "TEXT",
+                        "content": '',
+                    }, {
+                        "type": "IMAGE",
+                        "url": None,
+                    }]
+                }, {  # Section 3
+                    "items": [{
+                        "type": "TEXT",
+                        "content": '',
+                    }]
+                }, {  # Section 4
+                    "items": [{
+                        "type": "IMAGE",
+                        "url": None,
+                    }, {
+                        "type": "IMAGE",
+                        "url": None,
+                    }]
+                }
+            ]}
 
-    prod = None
-    title = None
-    category = None
-    params = None
-    stockCount = None
-    images = list()
+        self.title = None
+        self.price = None
+        self.category = None
+        self.params = None
+        self.stockCount = None
+        self.images = list()
+        self._descriptionSet = False
 
     def getTitle(self):
-        self.title = self.prod.getTitle()
+        if self.title is None:
+            self.title = self.prod.getTitle()
+
         return self.title
 
     def getPrice(self):
@@ -87,17 +90,23 @@ class LuckyStarProductIntegrator:
         return self.price
 
     def getImages(self):
-        self.images = self.prod.getImages()
+        if self.images is None:
+            self.images = self.prod.getImages()
+
         return self.images
 
     def getStockCount(self):
-        self.stockCount = self.prod.getStockCount()
+        if self.stockCount is None:
+            self.stockCount = self.prod.getStockCount()
+
         return self.stockCount
 
     def getCategory(self):
         season = None
         prodType = None
-        self.category = None
+
+        if self.category is not None:
+            return self.category
 
         try:
             prodType = self.prod.getType().lower()
@@ -141,6 +150,10 @@ class LuckyStarProductIntegrator:
         return self.category
 
     def getParams(self, availParams):
+
+        if self.params is not None:
+            return self.params
+
         params = list()
         availableParams = availParams['parameters']
 
@@ -214,7 +227,14 @@ class LuckyStarProductIntegrator:
         self.params = {'parameters': params}
         return self.params
 
+    def isDescriptionSet(self):
+        return _descriptionSet
+
     def getDesc(self):
+
+        if self.isDescriptionSet():
+            return self.description
+
         section1 = self.description['sections'][0]
         item1 = section1['items'][0]
         item1['content'] += '<p><b>Pełna nazwa:</b> {}</p>\n'.format(self.prod.getTitle())
@@ -333,4 +353,5 @@ class LuckyStarProductIntegrator:
             item2 = section2['items'][1]
             item2['url'] = self.images[2]
 
+        self._descriptionSet = True
         return self.description
