@@ -1,4 +1,5 @@
 import os
+import re
 import traceback
 import logging as log
 
@@ -137,59 +138,69 @@ class LuckyStarProductIntegrator:
         params = list()
         availableParams = availParams['parameters']
 
-        for param in availableParams:
+        for availParam in availableParams:
             try:
-                if param['name'].lower() == 'stan' or \
-                        param['name'].lower() == 'liczba opon w ofercie':
+                if availParam['name'].lower() == 'stan' or \
+                        availParam['name'].lower() == 'liczba opon w ofercie':
                     params.append({
-                        'id': param['id'],
+                        'id': availParam['id'],
                         'valuesIds': [
-                            param['dictionary'][0]['id'],
+                            availParam['dictionary'][0]['id'],
                         ],
                         'values': [],
                         'rangeValue': None
                     })
-                elif param['type'].lower() == 'dictionary':
-                    valueIds = list()
-                    for item in param['dictionary']:
-                        if item['value'] == self.prod.getDescValue(self.allegro2ngMap[param['name']]):
-                            valueIds.append(item['id'])
-                            if param['restrictions']['multipleChoices'] is False:
-                                break
-                    if param['required'] is True and not valueIds:
-                        valueIds.append(param['dictionary'][-1]['id'])
+                else:
+                    val = self.prod.getDescValue(self.allegro2ngMap[availParam['name']])
 
-                    params.append({
-                        'id': param['id'],
-                        'valuesIds': valueIds,
-                        'values': [],
-                        'rangeValue': None
-                    })
+                    if availParam['type'].lower() == 'dictionary':
+                        valueIds = list()
+                        availParamValues = availParam['dictionary']
 
-                elif (param['type'].lower() == 'float' or
-                      param['type'].lower() == 'integer') and \
-                        param['restrictions']['range'] is False:
-                    val = float(self.prod.getDescValue(self.allegro2ngMap[param['name']]))
-                    if val < param['restrictions']['min']:
-                        val = param['restrictions']['min']
-                    elif val > param['restrictions']['max']:
-                        val = param['restrictions']['max']
+                        for item in availParamValues:
+                            availVal = item['value']
 
-                    params.append({
-                        'id': param['id'],
-                        'valuesIds': [],
-                        'values': val,
-                        'rangeValue': None
-                    })
-                elif param['type'].lower() is 'string':
-                    params.append({
-                        'id': param['id'],
-                        'valuesIds': [],
-                        'values': self.prod.getDescValue(self.allegro2ngMap[param['name']]),
-                        'rangeValue': None
-                    })
+                            pattern = r'\b{}\b'.format(val.lower())
+                            if re.search(pattern, availVal.lower()):
+                                valueIds.append(item['id'])
+                                if availParam['restrictions']['multipleChoices'] is False:
+                                    break
+                        if not valueIds and availParam['options']['ambiguousValueId'] is not None:
+                            valueIds.append(availParam['options']['ambiguousValueId'])
+                        if availParam['required'] is True and not valueIds:
+                            valueIds.append(availParam['dictionary'][-1]['id'])
+
+                        params.append({
+                            'id': availParam['id'],
+                            'valuesIds': valueIds,
+                            'values': [],
+                            'rangeValue': None
+                        })
+
+                    elif (availParam['type'].lower() == 'float' or
+                          availParam['type'].lower() == 'integer') and \
+                            availParam['restrictions']['range'] is False:
+                        val = float(val)
+                        if val < availParam['restrictions']['min']:
+                            val = availParam['restrictions']['min']
+                        elif val > availParam['restrictions']['max']:
+                            val = availParam['restrictions']['max']
+
+                        params.append({
+                            'id': availParam['id'],
+                            'valuesIds': [],
+                            'values': val,
+                            'rangeValue': None
+                        })
+                    elif availParam['type'].lower() is 'string':
+                        params.append({
+                            'id': availParam['id'],
+                            'valuesIds': [],
+                            'values': val,
+                            'rangeValue': None
+                        })
             except LookupError as e:
-                log.debug('\'{}\' {}'.format(param['name'], repr(e)))
+                log.debug('\'{}\' {}'.format(availParam['name'], repr(e)))
                 # print('\n[Backtrace from getting \'{}\' parameter:]'.format(param['name']))
                 # traceback.print_tb(e.__traceback__)
                 continue
