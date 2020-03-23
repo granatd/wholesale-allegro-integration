@@ -2,7 +2,8 @@ import os
 import traceback
 import logging as log
 
-log.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
+fmt = "[%(levelname)s:%(filename)s:%(lineno)s: %(funcName)s()] %(message)s"
+log.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"), format=fmt)
 log = log.getLogger(__name__)
 
 
@@ -188,7 +189,9 @@ class LuckyStarProductIntegrator:
                         'rangeValue': None
                     })
             except LookupError as e:
-                traceback.print_tb(e.__traceback__)
+                log.debug(repr(e))
+                # print('\n[Backtrace from getting \'{}\' parameter:]'.format(param['name']))
+                # traceback.print_tb(e.__traceback__)
                 continue
 
         self.params = {'parameters': params}

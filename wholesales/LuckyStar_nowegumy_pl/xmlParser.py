@@ -5,7 +5,8 @@ import xml.etree.ElementTree as eT
 
 ns = {'ng': 'http://nowegumy.pl'}
 
-log.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
+fmt = "[%(levelname)s:%(filename)s:%(lineno)s: %(funcName)s()] %(message)s"
+log.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"), format=fmt)
 log = log.getLogger(__name__)
 
 

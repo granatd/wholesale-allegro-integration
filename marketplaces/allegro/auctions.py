@@ -7,7 +7,8 @@ import requests
 from pprint import pformat
 from base64 import b64encode, b64decode
 
-log.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
+fmt = "[%(levelname)s:%(filename)s:%(lineno)s: %(funcName)s()] %(message)s"
+log.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"), format=fmt)
 log = log.getLogger(__name__)
 
 
@@ -26,8 +27,8 @@ class Auction:
         self.setStockCount(integrator.getStockCount())
         self.setParams(integrator.getParams(self.prodCategoryParams))
 
-        log.debug('\n\nCreated template:\n')
-        log.debug(pformat(self.template))
+        log.debug('\n\nCreated template:\n\n'
+                  '{}'.format(pformat(self.template)))
 
     restMod = None
     integrator = None
