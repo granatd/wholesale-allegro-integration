@@ -88,7 +88,7 @@ class Auction:
         self.template['stock'] = str(count)
 
     def setPrice(self, price):
-        self.temmplate['sellingMode']['price'] = price
+        self.template['sellingMode']['price'] = price
 
 
 class RestAPI:
