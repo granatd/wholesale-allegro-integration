@@ -138,11 +138,13 @@ class LuckyStarProductIntegrator:
                 self.category = '257700'
         elif prodType == 'przemysłowe':
             if season is None:
-                self.category = None
+                self.category = '257689'    # lub '257707' - do innych pojazdów
             elif season == 'letnie':
-                self.category = None
+                self.category = '257689'
             elif season == 'całoroczne':
-                self.category = None
+                self.category = '257692'
+        elif prodType == 'quady':
+            self.category = '257706'
 
         if self.category is None:
             raise ValueError('Unrecognized category!')
