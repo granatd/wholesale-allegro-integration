@@ -201,7 +201,7 @@ class LuckyStarProductIntegrator:
                     elif (availParam['type'].lower() == 'float' or
                           availParam['type'].lower() == 'integer') and \
                             availParam['restrictions']['range'] is False:
-                        val = float(val)
+                        val = float(val.replace(',', '.'))
                         if val < availParam['restrictions']['min']:
                             val = availParam['restrictions']['min']
                         elif val > availParam['restrictions']['max']:
@@ -230,7 +230,7 @@ class LuckyStarProductIntegrator:
         return self.params
 
     def isDescriptionSet(self):
-        return _descriptionSet
+        return self._descriptionSet
 
     def getDesc(self):
 

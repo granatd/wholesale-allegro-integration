@@ -15,9 +15,10 @@ class LuckyStarWholesale:
     def __init__(self):
         self.xmlFile = 'sklep.xml'
         if not os.path.isfile(self.xmlFile):
-            self.fetchXML()
+            self._fetchXML()
 
         self.product = None
+        self.productIdx = 0
 
         self.tree = eT.parse(self.xmlFile)
         self.root = self.tree.getroot()
@@ -25,26 +26,28 @@ class LuckyStarWholesale:
         self.categories = self.root.find('ng:KATEGORIE', ns).findall('ng:KATEGORIA', ns)
         self.producers = self.root.find('ng:PRODUCENCI', ns).findall('ng:PRODUCENT', ns)
 
-    def fetchXML(self):
+    def _fetchXML(self):
         url = 'https://xml.nowegumy.pl/38c07d9eb6f585cb2e363aa8d83443b1b9fcc722/sklep.xml'
         resp = requests.get(url)
 
         with open('sklep.xml', 'wb') as f:
             f.write(resp.content)
 
+    def isFiltered(self, prod):
+        state = prod.find('ng:STAN', ns)
+        count = state.text
+
+        if int(count) < 5:
+            return True
+
+        price = prod.find('ng:CENA_BRUTTO', ns)
+        if price.text is None:
+            return True
+
+        return False
 
     def filterProducts(self):
-        products = self.products
-
-        for prod in products:
-            state = prod.find('ng:STAN', ns)
-            count = state.text
-            if int(count) < 5:
-                continue
-
-            price = prod.find('ng:CENA_BRUTTO', ns)
-            if price.text is None:
-                continue
+        self.products = [prod for prod in self.products if not self.isFiltered(prod)]
 
     def addOverhead(self, percent):
         """Dodaje narzut procentowy do ceny zakupu"""
@@ -58,8 +61,13 @@ class LuckyStarWholesale:
             price = prod.find('ng:CENA_NETTO', ns)
             price.text = str(float(price.text) * (1 + percent / 100))
 
+    def toFirstProduct(self):
+        self.productIdx = 0
+
     def getProduct(self):
-        self.product = LuckyStarProduct(self.products.pop())
+        self.product = LuckyStarProduct(self.products[self.productIdx])
+        self.productIdx += 1
+
         return self.product
 
 
@@ -82,7 +90,7 @@ class LuckyStarProduct:
         return images
 
     def getPrice(self):
-        return self.product.find('ng:CENA_BRUTTO', ns)
+        return self.product.find('ng:CENA_BRUTTO', ns).text
 
     def getTitle(self):
         return self.product.find('ng:NAZWA', ns).text[0:49]

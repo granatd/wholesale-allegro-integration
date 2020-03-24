@@ -24,12 +24,13 @@ def main():
     # RestAPI.getCategoryParams('257687')
     # RestAPI.getOfferDetails('9068419944')
     wholesale = createLuckyStarWholesale()
-    for i in range(7):
+    for i in range(1):
         try:
             prod = wholesale.getProduct()
             integrator = LuckyStarProductIntegrator(prod)
         except IndexError as e:
             log.debug('No products left in a wholesale!')
+            wholesale.toFirstProduct()
             break
 
         try:
