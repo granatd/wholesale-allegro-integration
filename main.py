@@ -40,7 +40,7 @@ def main():
                       '{}'.format(repr(e)))
             continue
 
-        # auction.RestAPI.push()
+        auction.push()
 
 
 if __name__ == '__main__':

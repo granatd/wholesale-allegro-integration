@@ -90,6 +90,9 @@ class Auction:
     def setPrice(self, price):
         self.template['sellingMode']['price'] = price
 
+    def push(self):
+        self.restMod.pushOffer(self.template)
+
 
 class RestAPI:
     def __init__(self):
@@ -185,7 +188,7 @@ class RestAPI:
         return sellerID
 
     @staticmethod
-    def _rest(method, resource, bearer=False, headers=None, data=None):
+    def _rest(method, resource, bearer=False, headers=None, data=None, json=None):
         header = dict()
 
         if bearer is True:
@@ -201,7 +204,9 @@ class RestAPI:
         for i in range(3):
             req = requests.Request(method, resource,
                                    headers=header,
-                                   data=data).prepare()
+                                   data=data, json=json).prepare()
+
+            log.debug('Prepared to send:')
             RestAPI.prettyLogRequest(req)
 
             s = requests.Session()
@@ -266,8 +271,11 @@ class RestAPI:
         return RestAPI._rest('GET', 'https://api.allegro.pl/sale/offers/{}'.format(offerID), bearer=True)
 
     @staticmethod
-    def push():
-        resp = RestAPI._rest('POST', 'https://api.allegro.pl/sale/offers', data=RestAPI.template, bearer=True)
+    def pushOffer(offerTemplate):
+        log.debug('\n\nofferTemplate: json= \n\n'
+                  '{}\n'.format(repr(offerTemplate)))
+
+        resp = RestAPI._rest('POST', 'https://api.allegro.pl/sale/offers', json=offerTemplate, bearer=True)
         errors = resp['validation']['errors']
         if errors:
             raise IOError('errors:\n {}'.format(repr(errors)))
