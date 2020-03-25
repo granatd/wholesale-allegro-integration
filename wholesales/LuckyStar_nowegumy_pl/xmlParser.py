@@ -1,4 +1,5 @@
 import os
+import re
 import requests
 import logging as log
 import xml.etree.ElementTree as eT
@@ -170,3 +171,51 @@ class LuckyStarProduct:
 
     def getProducerInfo(self):
         return self.getDescValue('O ' + self.getProducer())
+
+    def getCompatibleModelsDesc(self):
+        return self.getDescValue('Pasuje do')
+
+    def getAdditionalDescription(self):
+
+        def isOverMinLength(desc):
+            minChars = 80
+            descValue = desc.find('ng:WARTOSC', ns).text
+
+            return len(descValue) > minChars
+
+        def keywordsMatch(desc):
+            includedKeys = [r'\bO\b']
+            excludedKeys = ['Informacje ogólne', 'Pasuje do', ]
+
+            descName = desc.find('ng:NAZWA', ns).text
+
+            for includedKey in includedKeys:
+                if re.search(includedKey, descName):
+                    return True
+
+            for excludedKey in excludedKeys:
+                if re.search(excludedKey, descName):
+                    return False
+
+        def isAdditionalDescription(desc):
+            validators = [keywordsMatch, ]
+
+            validators[-1] = isOverMinLength
+
+            for validator in validators:
+                validity = validator(desc)
+                if validity is not None:
+                    return validity
+
+            return False
+
+        descriptions = list()
+
+        for desc in self.product.findall('ng:OPIS', ns):
+            descName = desc.find('ng:NAZWA', ns).text
+            descValue = desc.find('ng:WARTOSC', ns).text
+
+            if isAdditionalDescription(desc):
+                descriptions.append({descName: descValue})
+
+        return descriptions

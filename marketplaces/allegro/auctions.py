@@ -15,25 +15,24 @@ log = log.getLogger(__name__)
 class Auction:
     def __init__(self, integrator):
         self.template = {
-             'name': 'daniel',
-             'location': {'city': 'Łódź',
-                          'countryCode': 'PL',
-                          'postCode': '90-619',
-                          'province': 'LODZKIE'},
-             'payments': {'invoice': 'VAT'},
-             'afterSalesServices': {
-                 'impliedWarranty': {'id': '95b451bf-7fd6-4d46-9bc1-ac6516eeb065'},
-                 'returnPolicy': {'id': 'f7b5005b-4b46-45d7-bab8-e17208729f2c'},
-                 'warranty': {'id': '593b3ed0-655c-40e6-acbc-7782351cca75'}},
-             'delivery': {
-                 'handlingTime': 'PT24H',
-                 'shippingRates': {'id': 'cde2d24a-ab38-461d-96da-ade36d99e7cf'}},
-             'stock': {'available': 2, 'unit': 'UNIT'},
-             # 'description': 'Opis',
-             'category': {'id': '257698'},
-             'sellingMode': {'format': 'BUY_NOW',
-                             'price': {'amount': '609', 'currency': 'PLN'},
-                             },
+            'name': 'michal',
+            'location': {'city': 'Łódź',
+                         'countryCode': 'PL',
+                         'postCode': '90-619',
+                         'province': 'LODZKIE'},
+            'payments': {'invoice': 'VAT'},
+            'afterSalesServices': {
+                'impliedWarranty': {'id': '95b451bf-7fd6-4d46-9bc1-ac6516eeb065'},
+                'returnPolicy': {'id': 'f7b5005b-4b46-45d7-bab8-e17208729f2c'},
+                'warranty': {'id': '593b3ed0-655c-40e6-acbc-7782351cca75'}},
+            'delivery': {
+                'handlingTime': 'PT24H',
+                'shippingRates': {'id': 'cde2d24a-ab38-461d-96da-ade36d99e7cf'}},
+            'stock': {'available': '2', 'unit': 'UNIT'},
+            'category': {'id': '257698'},
+            'sellingMode': {'format': 'BUY_NOW',
+                            'price': {'amount': '609', 'currency': 'PLN'},
+                            }
         }
         #     'afterSalesServices': {'impliedWarranty': {'id': '95b451bf-7fd6-4d46-9bc1-ac6516eeb065'},
         #                            'returnPolicy': {'id': 'f7b5005b-4b46-45d7-bab8-e17208729f2c'},
@@ -65,8 +64,8 @@ class Auction:
         self.setPrice(integrator.getPrice())
         self.setTitle(integrator.getTitle())
         self.setImages(integrator.getImages())
-        # self.setDescription(integrator.getDesc())
-        # self.setStockCount(integrator.getStockCount())
+        self.setDescription(integrator.getDesc())
+        self.setStockCount(integrator.getStockCount())
         # self.setParams(integrator.getParams(self.getCategoryParams()))
 
         log.debug('\n\nCreated template:\n\n'
@@ -88,7 +87,7 @@ class Auction:
         self.template['parameters'] = params
 
     def setStockCount(self, count):
-        self.template['stock'] = str(count)
+        self.template['stock'] = count
 
     def setPrice(self, price):
         self.template['sellingMode']['price'] = price

@@ -51,21 +51,34 @@ class LuckyStarProductIntegrator:
                         "content": '',
                     }, {
                         "type": "IMAGE",
-                        "url": None,
+                        "url": '',
                     }]
                 }, {  # Section 3
                     "items": [{
                         "type": "TEXT",
                         "content": '',
                     }]
-                }, {  # Section 4
+                }, {  # Section N
                     "items": [{
                         "type": "IMAGE",
-                        "url": None,
+                        "url": '',
+                    }, {
+                        "type": "TEXT",
+                        "content": '',
+                    }]
+                }, {  # Section N+1
+                    "items": [{
+                        "type": "TEXT",
+                        "url": '',
                     }, {
                         "type": "IMAGE",
-                        "url": None,
-                    }]
+                        "content": '',
+                    }],
+                }, {  # Last Section
+                    "items": [{
+                        "type": "TEXT",
+                        "url": '',
+                    }],
                 }
             ]}
 
@@ -84,20 +97,29 @@ class LuckyStarProductIntegrator:
         return self.title
 
     def getPrice(self):
-        if self.price is None:
-            self.price = self.prod.getPrice()
+        if self.price is not None:
+            return self.price
+
+        price = "{:.2f}".format(float(self.prod.getPrice()))
+        self.price = {'amount': price, 'currency': 'PLN'}
 
         return self.price
 
     def getImages(self):
-        if self.images is None:
-            self.images = self.prod.getImages()
+        if self.images is not None:
+            return self.images
+
+        images = self.prod.getImages()
+        self.images = [{'url': img} for img in images]
 
         return self.images
 
     def getStockCount(self):
-        if self.stockCount is None:
-            self.stockCount = self.prod.getStockCount()
+        if self.stockCount is not None:
+            return self.stockCount
+
+        stockCount = self.prod.getStockCount()
+        self.stockCount = {'available': int(stockCount), 'unit': 'UNIT'}
 
         return self.stockCount
 
@@ -233,127 +255,238 @@ class LuckyStarProductIntegrator:
         return self._descriptionSet
 
     def getDesc(self):
+        currSectionIdx = 0
 
         if self.isDescriptionSet():
             return self.description
 
+        # ==================================== SECTION 1 ===========================================
         section1 = self.description['sections'][0]
-        item1 = section1['items'][0]
-        item1['content'] += '<p><b>Pełna nazwa:</b> {}</p>\n'.format(self.prod.getTitle())
+
+        # ====== ITEM 1 ======
+        item = section1['items'][0]
+        item['content'] += '<p><b>Pełna nazwa:</b> {}</p>\n'.format(self.prod.getTitle())
 
         try:
-            item1['content'] += '<p><b>Producent:</b> {}</p>\n'.format(self.prod.getProducer())
+            item['content'] += '<p><b>Producent:</b> {}</p>\n'.format(self.prod.getProducer())
         except LookupError as e:
             log.debug(repr(e))
 
         try:
-            item1['content'] += '<p><b>Model:</b> {}</p>\n'.format(self.prod.getModel())
+            item['content'] += '<p><b>Model:</b> {}</p>\n'.format(self.prod.getModel())
         except LookupError as e:
             log.debug(repr(e))
 
+        if not item['content']:
+            raise LookupError('Description is empty!')
+
+        currSectionIdx += 1
+        # ==================================== SECTION 2 ===========================================
         section2 = self.description['sections'][1]
-        item1 = section2['items'][0]
+
+        # ====== ITEM 1 ======
+        item = section2['items'][0]
 
         try:
-            item1['content'] += '<p><b>Opory toczenia:</b> {}</p>\n'.format(self.prod.getRotationResistance())
+            item['content'] += '<p><b>Opory toczenia:</b> {}</p>\n'.format(self.prod.getRotationResistance())
         except LookupError as e:
             log.debug(repr(e))
 
         try:
-            item1['content'] += '<p><b>Hamowanie na mokrym:</b> {}</p>\n'.format(self.prod.getWetTraction())
+            item['content'] += '<p><b>Hamowanie na mokrym:</b> {}</p>\n'.format(self.prod.getWetTraction())
         except LookupError as e:
             log.debug(repr(e))
 
         try:
-            item1['content'] += '<p><b>Poziom hałasu:</b> {}</p>\n'.format(self.prod.getNoiseLevel())
+            item['content'] += '<p><b>Poziom hałasu:</b> {}</p>\n'.format(self.prod.getNoiseLevel())
         except LookupError as e:
             log.debug(repr(e))
 
         try:
-            item1['content'] += '<p><b>Typ:</b> {}</p>\n'.format(self.prod.getType())
+            item['content'] += '<p><b>Typ:</b> {}</p>\n'.format(self.prod.getType())
         except LookupError as e:
             log.debug(repr(e))
 
         try:
-            item1['content'] += '<p><b>Sezon:</b> {}</p>\n'.format(self.prod.getSeason())
+            item['content'] += '<p><b>Sezon:</b> {}</p>\n'.format(self.prod.getSeason())
         except LookupError as e:
             log.debug(repr(e))
 
         try:
-            item1['content'] += '<p><b>Rozmiar:</b> {}</p>\n'.format(self.prod.getSize())
+            item['content'] += '<p><b>Rozmiar:</b> {}</p>\n'.format(self.prod.getSize())
         except LookupError as e:
             log.debug(repr(e))
 
         try:
-            item1['content'] += '<p><b>Szerokość:</b> {}</p>\n'.format(self.prod.getWidth())
+            item['content'] += '<p><b>Szerokość:</b> {}</p>\n'.format(self.prod.getWidth())
         except LookupError as e:
             log.debug(repr(e))
 
         try:
-            item1['content'] += '<p><b>Wysokość:</b> {}</p>\n'.format(self.prod.getHeight())
+            item['content'] += '<p><b>Wysokość:</b> {}</p>\n'.format(self.prod.getHeight())
         except LookupError as e:
             log.debug(repr(e))
 
         try:
-            item1['content'] += '<p><b>Rozmiar felgi:</b> {}</p>\n'.format(self.prod.getRimSize())
+            item['content'] += '<p><b>Rozmiar felgi:</b> {}</p>\n'.format(self.prod.getRimSize())
         except LookupError as e:
             log.debug(repr(e))
 
         try:
-            item1['content'] += '<p><b>Indeks prędkości:</b> {}</p>\n'.format(self.prod.getVmax())
+            item['content'] += '<p><b>Indeks prędkości:</b> {}</p>\n'.format(self.prod.getVmax())
         except LookupError as e:
             log.debug(repr(e))
 
         try:
-            item1['content'] += '<p><b>Indeks nośności:</b> {}</p>\n'.format(self.prod.getLoadIndex())
+            item['content'] += '<p><b>Indeks nośności:</b> {}</p>\n'.format(self.prod.getLoadIndex())
         except LookupError as e:
             log.debug(repr(e))
 
         try:
-            item1['content'] += '<p><b>Kod producenta:</b> {}</p>\n'.format(self.prod.getProducerCode())
+            item['content'] += '<p><b>Kod producenta:</b> {}</p>\n'.format(self.prod.getProducerCode())
         except LookupError as e:
             log.debug(repr(e))
 
         try:
-            item1['content'] += '<p><b>EAN:</b> {}</p>\n'.format(self.prod.getEAN())
+            item['content'] += '<p><b>EAN:</b> {}</p>\n'.format(self.prod.getEAN())
         except LookupError as e:
             log.debug(repr(e))
 
         try:
-            item1['content'] += '<p><b>Identyfikator:</b> {}</p>\n'.format(self.prod.getDestination())
+            item['content'] += '<p><b>Identyfikator:</b> {}</p>\n'.format(self.prod.getDestination())
         except LookupError as e:
             log.debug(repr(e))
 
         try:
-            item1['content'] += '<p><b>Waga:</b> {}</p>\n'.format(self.prod.getWeight())
+            item['content'] += '<p><b>Waga:</b> {}</p>\n'.format(self.prod.getWeight())
         except LookupError as e:
             log.debug(repr(e))
 
         try:
-            item1['content'] += '<p><b>Objętość:</b> {}</p>\n'.format(self.prod.getVolumeSize())
+            item['content'] += '<p><b>Objętość:</b> {}</p>\n'.format(self.prod.getVolumeSize())
         except LookupError as e:
             log.debug(repr(e))
 
+        if not item['content']:
+            del item
+
+        # ====== ITEM 2 =======
+        item = section2['items'][1]
         if len(self.images) > 0:
-            item2 = section2['items'][1]
-            item2['url'] = self.images[0]
+            item['url'] = self.images[0]['url']
+        else:
+            del item
 
+        if not section2['items']:
+            del section2
+
+        currSectionIdx += 1
+        # ==================================== SECTION 3 ===========================================
         section3 = self.description['sections'][2]
-        item1 = section3['items'][0]
+
+        # ====== ITEM 1 ======
+        item = section3['items'][0]
 
         try:
-            item1['content'] += '<p><b>Informacje ogólne:</b>\n{}</p>\n'.format(self.prod.getOverallInfo())
+            item['content'] += '<p><b>Informacje ogólne:</b>\n{}</p>\n'.format(self.prod.getOverallInfo())
         except LookupError as e:
             log.debug(repr(e))
 
-        if len(self.images) > 1:
-            section4 = self.description['sections'][3]
-            item1 = section4['items'][0]
-            item1['url'] = self.images[1]
+        if not item['content']:
+            del item
 
-        if len(self.images) > 2:
-            item2 = section2['items'][1]
-            item2['url'] = self.images[2]
+        if not section3['items']:
+            del section3
+
+        currSectionIdx += 1
+        # ==================================== SECTIONS N AND N+1 ========================================
+        maxSections = 10
+        additionalDescriptions = self.prod.getAdditionalDescription()
+
+        def addImg(item, additionalDescNum):
+            if len(self.images) > 1 + additionalDescNum:
+                item['url'] = self.images[1 + additionalDescNum]['url']
+            else:
+                del item
+
+        def addText(item):
+            try:
+                additionalDescName, additionalDescVal = additionalDescriptions.pop()
+                item['content'] = '<p><b>{}:</b></p>\n' \
+                                   '<p>{}</p>\n'.format(additionalDescName, additionalDescVal)
+            except IndexError:
+                del item
+
+        for N in range(maxSections):
+
+            if int(N) % 2 == 1:
+                item1Type = 'TEXT'
+                item1Key = 'content'
+                item2Type = 'IMAGE'
+                item2Key = 'url'
+            else:
+                item1Type = 'IMAGE'
+                item1Key = 'url'
+                item2Type = 'TEXT'
+                item2Key = 'content'
+
+            try:
+                sectionN = self.description['sections'][currSectionIdx]
+            except IndexError as e:
+
+                sectionN = {
+                    "items": [
+                        {
+                            "type": "{}".format(item1Type),
+                            "{}".format(item1Key): '',
+                        }, {
+                            "type": "{}".format(item2Type),
+                            "{}".format(item2Key): '',
+                        }
+                    ]
+                }
+                self.description['sections'][currSectionIdx] = sectionN
+
+            # ====== ITEM 1 ======
+            item = sectionN['items'][0]
+
+            if item1Type == 'IMAGE':
+                addImg(item, N)
+            else:
+                addText(item)
+
+            # ====== ITEM 2 ======
+            item = sectionN['items'][1]
+
+            if item1Type == 'IMAGE':
+                addImg(item, N)
+            else:
+                addText(item)
+
+            if not sectionN['items']:
+                del sectionN
+                currSectionIdx += 1
+                break
+
+            currSectionIdx += 1
+        # ==================================== LAST SECTION ===========================================
+        sectionN = self.description['sections'][currSectionIdx]
+
+        # ====== ITEM 1 ======
+        item = sectionN['items'][0]
+
+        try:
+            item['content'] += '<p><b>Pasuje do:</b>\n{}</p>\n'.format(self.prod.getCompatibleModelsDesc())
+        except LookupError as e:
+            log.debug(repr(e))
+
+        if not item['content']:
+            del item
+
+        if not sectionN['items']:
+            del sectionN
+        # =============================================================================================
 
         self._descriptionSet = True
         return self.description
+
