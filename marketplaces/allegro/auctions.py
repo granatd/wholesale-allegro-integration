@@ -15,42 +15,48 @@ log = log.getLogger(__name__)
 class Auction:
     def __init__(self, integrator):
         self.template = {
-            'additionalServices': None,
-            'afterSalesServices': {'impliedWarranty': {'id': '95b451bf-7fd6-4d46-9bc1-ac6516eeb065'},
-                                   'returnPolicy': {'id': 'f7b5005b-4b46-45d7-bab8-e17208729f2c'},
-                                   'warranty': {'id': '593b3ed0-655c-40e6-acbc-7782351cca75'}},
-            'attachments': None,
-            'category': None,
-            'compatibilityList': None,
-            'contact': None,
-            'delivery': {'additionalInfo': None,
-                         'handlingTime': 'PT24H',
-                         'shipmentDate': None,
-                         'shippingRates': {'id': 'cde2d24a-ab38-461d-96da-ade36d99e7cf'}},
-            'description': None,
-            'ean': None,
-            'images': None,
-            'location': {'city': 'Łódź',
-                         'countryCode': 'PL',
-                         'postCode': '90-619',
-                         'province': 'LODZKIE'},
-            'name': None,
-            'parameters': None,
-            'payments': {'invoice': 'VAT'},
-            'product': None,
-            'publication': {'duration': None,
-                            'endedBy': None,
-                            'endingAt': None,
-                            'republish': True,
-                            'startingAt': None,
-                            'status': 'ACTIVE'},
-            'sellingMode': {'format': 'BUY_NOW',
-                            'minimalPrice': None,
-                            'price': {'amount': None, 'currency': 'PLN'},
-                            'startingPrice': None},
-            'sizeTable': None,
-            'stock': {'available': 2, 'unit': 'UNIT'},
+             'name': 'daniel',
+             'location': {'city': 'Łódź',
+                          'countryCode': 'PL',
+                          'postCode': '90-619',
+                          'province': 'LODZKIE'},
+             'payments': {'invoice': 'VAT'},
+             'afterSalesServices': {
+                 'impliedWarranty': {'id': '95b451bf-7fd6-4d46-9bc1-ac6516eeb065'},
+                 'returnPolicy': {'id': 'f7b5005b-4b46-45d7-bab8-e17208729f2c'},
+                 'warranty': {'id': '593b3ed0-655c-40e6-acbc-7782351cca75'}},
+             'delivery': {
+                 'handlingTime': 'PT24H',
+                 'shippingRates': {'id': 'cde2d24a-ab38-461d-96da-ade36d99e7cf'}},
+             'stock': {'available': 2, 'unit': 'UNIT'},
+             # 'description': 'Opis',
+             'category': {'id': '257698'},
+             'sellingMode': {'format': 'BUY_NOW',
+                             'price': {'amount': '609', 'currency': 'PLN'},
+                             },
         }
+        #     'afterSalesServices': {'impliedWarranty': {'id': '95b451bf-7fd6-4d46-9bc1-ac6516eeb065'},
+        #                            'returnPolicy': {'id': 'f7b5005b-4b46-45d7-bab8-e17208729f2c'},
+        #                            'warranty': {'id': '593b3ed0-655c-40e6-acbc-7782351cca75'}},
+        #     'delivery': {
+        #                  'handlingTime': 'PT24H',
+        #                  'shippingRates': {'id': 'cde2d24a-ab38-461d-96da-ade36d99e7cf'}},
+        #     'description': 'Opis',
+        #     'ean': None,
+        #     'images': None,
+        #     'location': {'city': 'Łódź',
+        #                  'countryCode': 'PL',
+        #                  'postCode': '90-619',
+        #                  'province': 'LODZKIE'},
+        #     'name': None,
+        #     'parameters': None,
+        #     'payments': {'invoice': 'VAT'},
+        #     'sellingMode': {'format': 'BUY_NOW',
+        #                     'price': {'amount': None, 'currency': 'PLN'},
+        #                     },
+        #     'stock': {'available': None, 'unit': 'UNIT'},
+        #     'category': None,
+        # }
 
         self.restMod = RestAPI()
         self.integrator = integrator
@@ -59,9 +65,9 @@ class Auction:
         self.setPrice(integrator.getPrice())
         self.setTitle(integrator.getTitle())
         self.setImages(integrator.getImages())
-        self.setDescription(integrator.getDesc())
-        self.setStockCount(integrator.getStockCount())
-        self.setParams(integrator.getParams(self.getCategoryParams()))
+        # self.setDescription(integrator.getDesc())
+        # self.setStockCount(integrator.getStockCount())
+        # self.setParams(integrator.getParams(self.getCategoryParams()))
 
         log.debug('\n\nCreated template:\n\n'
                   '{}'.format(pformat(self.template)))
