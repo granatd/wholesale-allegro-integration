@@ -55,16 +55,13 @@ class Auction:
         self.restMod = RestAPI()
         self.integrator = integrator
 
-        self.prodCategory = integrator.getCategory()
-        self.prodCategoryParams = self.restMod.getCategoryParams(self.prodCategory)
-
-        self.setCategory(self.prodCategory)
+        self.setCategory(integrator.getCategory())
         self.setPrice(integrator.getPrice())
         self.setTitle(integrator.getTitle())
         self.setImages(integrator.getImages())
         self.setDescription(integrator.getDesc())
         self.setStockCount(integrator.getStockCount())
-        self.setParams(integrator.getParams(self.prodCategoryParams))
+        self.setParams(integrator.getParams(self.getCategoryParams()))
 
         log.debug('\n\nCreated template:\n\n'
                   '{}'.format(pformat(self.template)))
@@ -76,7 +73,7 @@ class Auction:
         self.template['images'] = images
 
     def setCategory(self, category):
-        self.template['category'] = str(category)
+        self.template['category'] = category
 
     def setDescription(self, desc):
         self.template['description'] = desc
@@ -92,6 +89,9 @@ class Auction:
 
     def push(self):
         self.restMod.pushOffer(self.template)
+
+    def getCategoryParams(self):
+        return self.restMod.getCategoryParams(self.integrator.getCategory()['id'])
 
 
 class RestAPI:

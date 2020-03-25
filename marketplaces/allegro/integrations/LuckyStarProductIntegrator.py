@@ -74,7 +74,7 @@ class LuckyStarProductIntegrator:
         self.category = None
         self.params = None
         self.stockCount = None
-        self.images = list()
+        self.images = None
         self._descriptionSet = False
 
     def getTitle(self):
@@ -117,34 +117,34 @@ class LuckyStarProductIntegrator:
 
         if prodType == 'samochody osobowe':
             if season is None:
-                self.category = '257689'
+                self.category = {'id': '257689'}
             elif season == 'letnie':
-                self.category = '257689'
+                self.category = {'id': '257689'}
             elif season == 'całoroczne':
-                self.category = '257692'
+                self.category = {'id': '257692'}
         elif prodType == 'samochody terenowe, SUV, Pickup':
             if season is None:
-                self.category = '257694'
+                self.category = {'id': '257694'}
             elif season == 'letnie':
-                self.category = '257694'
+                self.category = {'id': '257694'}
             elif season == 'całoroczne':
-                self.category = '257696'
+                self.category = {'id': '257696'}
         elif prodType == 'samochody dostawcze':
             if season is None:
-                self.category = '257698'
+                self.category = {'id': '257698'}
             elif season == 'letnie':
-                self.category = '257698'
+                self.category = {'id': '257698'}
             elif season == 'całoroczne':
-                self.category = '257700'
+                self.category = {'id': '257700'}
         elif prodType == 'przemysłowe':
             if season is None:
-                self.category = '257689'    # lub '257707' - do innych pojazdów
+                self.category = {'id': '257689'}    # lub '257707' - do innych pojazdów
             elif season == 'letnie':
-                self.category = '257689'
+                self.category = {'id': '257689'}
             elif season == 'całoroczne':
-                self.category = '257692'
+                self.category = {'id': '257692'}
         elif prodType == 'quady':
-            self.category = '257706'
+            self.category = {'id': '257706'}
 
         if self.category is None:
             raise ValueError('Unrecognized category!')
