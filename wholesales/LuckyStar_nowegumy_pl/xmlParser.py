@@ -178,7 +178,7 @@ class LuckyStarProduct:
     def getAdditionalDescription(self):
 
         def isOverMinLength(desc):
-            minChars = 80
+            minChars = 8000000
             descValue = desc.find('ng:WARTOSC', ns).text
 
             return len(descValue) > minChars

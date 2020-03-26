@@ -59,6 +59,7 @@ class Auction:
 
         self.restMod = RestAPI()
         self.integrator = integrator
+        self.images = integrator.getImages()
 
         self.setCategory(integrator.getCategory())
         self.setPrice(integrator.getPrice())
@@ -93,7 +94,8 @@ class Auction:
         self.template['sellingMode']['price'] = price
 
     def push(self):
-        self.restMod.pushOffer(self.template)
+        images = [img['url'] for img in self.images]
+        self.restMod.pushOffer(self.template, images)
 
     def getCategoryParams(self):
         return self.restMod.getCategoryParams(self.integrator.getCategory()['id'])
@@ -217,7 +219,7 @@ class RestAPI:
             s = requests.Session()
 
             resp = s.send(req)
-            if resp.status_code == 200:
+            if 200 <= resp.status_code < 300:
                 break
             elif resp.status_code == 401 and bearer is True:
                 RestAPI.refreshAccessToken()
@@ -227,7 +229,7 @@ class RestAPI:
 
         respText = 'Response:\n' + \
                    pformat(resp.json())
-        if resp.status_code is not 200:
+        if 300 <= resp.status_code < 200:
             raise ConnectionError(respText)
 
         log.debug(respText)
@@ -263,22 +265,24 @@ class RestAPI:
 
     @staticmethod
     def postImages(images):
-        if len(images) < 1:
+        if not images:
             return
 
         RestAPI._rest('POST', 'https://api.allegro.pl/sale/images',
-                      data={
+                      json={
                           'url': '{}'.format(img) for img in images
-                      })
+                      }, bearer=True)
 
     @staticmethod
     def getOfferDetails(offerID):
         return RestAPI._rest('GET', 'https://api.allegro.pl/sale/offers/{}'.format(offerID), bearer=True)
 
     @staticmethod
-    def pushOffer(offerTemplate):
+    def pushOffer(offerTemplate, images):
         log.debug('\n\nofferTemplate: json= \n\n'
                   '{}\n'.format(repr(offerTemplate)))
+
+        RestAPI.postImages(images)
 
         resp = RestAPI._rest('POST', 'https://api.allegro.pl/sale/offers', json=offerTemplate, bearer=True)
         errors = resp['validation']['errors']

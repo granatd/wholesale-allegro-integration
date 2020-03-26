@@ -42,7 +42,7 @@ def main():
                       '{}'.format(repr(e)))
             continue
 
-        # auction.push()
+        auction.push()
 
 
 if __name__ == '__main__':
