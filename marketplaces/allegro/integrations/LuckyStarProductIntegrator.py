@@ -40,54 +40,54 @@ class LuckyStarProductIntegrator:
         }
 
         self.description = {"sections": [
-                {  # Section 1
-                    "items": [{
-                        "type": "TEXT",
-                        "content": '',
-                    }]
-                }, {  # Section 2
-                    "items": [{
-                        "type": "TEXT",
-                        "content": '',
-                    }, {
-                        "type": "IMAGE",
-                        "url": '',
-                    }]
-                }, {  # Section 3
-                    "items": [{
-                        "type": "TEXT",
-                        "content": '',
-                    }]
-                }, {  # Section N
-                    "items": [{
-                        "type": "IMAGE",
-                        "url": '',
-                    }, {
-                        "type": "TEXT",
-                        "content": '',
-                    }]
-                }, {  # Section N+1
-                    "items": [{
-                        "type": "TEXT",
-                        "url": '',
-                    }, {
-                        "type": "IMAGE",
-                        "content": '',
-                    }],
-                }, {  # Last Section
-                    "items": [{
-                        "type": "TEXT",
-                        "url": '',
-                    }],
-                }
-            ]}
+            {  # Section 1
+                "items": [{
+                    "type": "TEXT",
+                    "content": '',
+                }]
+            }, {  # Section 2
+                "items": [{
+                    "type": "TEXT",
+                    "content": '',
+                }, {
+                    "type": "IMAGE",
+                    "url": '',
+                }]
+                # }, {  # Section 3
+                #     "items": [{
+                #         "type": "TEXT",
+                #         "content": '',
+                #     }]
+                # }, {  # Section N
+                #     "items": [{
+                #         "type": "IMAGE",
+                #         "url": '',
+                #     }, {
+                #         "type": "TEXT",
+                #         "content": '',
+                #     }]
+                # }, {  # Section N+1
+                #     "items": [{
+                #         "type": "TEXT",
+                #         "url": '',
+                #     }, {
+                #         "type": "IMAGE",
+                #         "content": '',
+                #     }],
+                # }, {  # Last Section
+                #     "items": [{
+                #         "type": "TEXT",
+                #         "url": '',
+                #     }],
+            }
+        ]}
 
         self.title = None
         self.price = None
         self.category = None
         self.params = None
         self.stockCount = None
-        self.images = None
+        self.images = list()
         self._descriptionSet = False
 
     def getTitle(self):
@@ -106,7 +106,7 @@ class LuckyStarProductIntegrator:
         return self.price
 
     def getImages(self):
-        if self.images is not None:
+        if self.images:
             return self.images
 
         images = self.prod.getImages()
@@ -160,7 +160,7 @@ class LuckyStarProductIntegrator:
                 self.category = {'id': '257700'}
         elif prodType == 'przemysłowe':
             if season is None:
-                self.category = {'id': '257689'}    # lub '257707' - do innych pojazdów
+                self.category = {'id': '257689'}  # lub '257707' - do innych pojazdów
             elif season == 'letnie':
                 self.category = {'id': '257689'}
             elif season == 'całoroczne':
@@ -255,7 +255,6 @@ class LuckyStarProductIntegrator:
         return self._descriptionSet
 
     def getDesc(self):
-        currSectionIdx = 0
 
         if self.isDescriptionSet():
             return self.description
@@ -280,7 +279,6 @@ class LuckyStarProductIntegrator:
         if not item['content']:
             raise LookupError('Description is empty!')
 
-        currSectionIdx += 1
         # ==================================== SECTION 2 ===========================================
         section2 = self.description['sections'][1]
 
@@ -368,125 +366,126 @@ class LuckyStarProductIntegrator:
             log.debug(repr(e))
 
         if not item['content']:
-            del item
+            del section2['items'][0]
 
         # ====== ITEM 2 =======
         item = section2['items'][1]
-        if len(self.images) > 0:
+        try:
             item['url'] = self.images[0]['url']
-        else:
-            del item
+        except IndexError:
+            log.debug('Can\'t make img item in section2!')
+            del section2['items'][1]
 
         if not section2['items']:
-            del section2
+            raise LookupError('Description is incomplete!')
 
-        currSectionIdx += 1
         # ==================================== SECTION 3 ===========================================
-        section3 = self.description['sections'][2]
+        section3 = {
+                "items": [],
+        }
 
         # ====== ITEM 1 ======
-        item = section3['items'][0]
+        item = dict()
 
         try:
-            item['content'] += '<p><b>Informacje ogólne:</b>\n{}</p>\n'.format(self.prod.getOverallInfo())
+            item['content'] = '<p><b>Informacje ogólne:</b>\n{}</p>\n'.format(self.prod.getOverallInfo())
+            item['type'] = 'TEXT'
         except LookupError as e:
             log.debug(repr(e))
 
-        if not item['content']:
-            del item
+        if item:
+            section3['items'].append(item)
 
-        if not section3['items']:
-            del section3
+        if section3['items']:
+            self.description['sections'].append(section3)
 
-        currSectionIdx += 1
         # ==================================== SECTIONS N AND N+1 ========================================
-        maxSections = 10
+        maxAdditionalSections = 7
         additionalDescriptions = self.prod.getAdditionalDescription()
 
-        def addImg(item, additionalDescNum):
-            if len(self.images) > 1 + additionalDescNum:
-                item['url'] = self.images[1 + additionalDescNum]['url']
-            else:
-                del item
+        def makeImgItem(additionalDescNum):
+            item = dict()
 
-        def addText(item):
+            try:
+                item['url'] = self.images[1 + additionalDescNum]['url']
+                item['type'] = 'IMAGE'
+            except IndexError:
+                log.debug('Can\'t make img item in sectionN!')
+
+            return item
+
+        def makeTextItem(additionalDescriptions):
+            item = dict()
+
             try:
                 additionalDescName, additionalDescVal = additionalDescriptions.pop()
                 item['content'] = '<p><b>{}:</b></p>\n' \
-                                   '<p>{}</p>\n'.format(additionalDescName, additionalDescVal)
+                                    '<p>{}</p>\n'.format(additionalDescName, additionalDescVal)
+                item['type'] = 'TEXT'
             except IndexError:
-                del item
+                log.debug('Can\'t make text item in sectionN!')
 
-        for N in range(maxSections):
+            return item
 
+        def makeAdditionalSection(N):
             if int(N) % 2 == 1:
                 item1Type = 'TEXT'
-                item1Key = 'content'
-                item2Type = 'IMAGE'
-                item2Key = 'url'
             else:
                 item1Type = 'IMAGE'
-                item1Key = 'url'
-                item2Type = 'TEXT'
-                item2Key = 'content'
 
-            try:
-                sectionN = self.description['sections'][currSectionIdx]
-            except IndexError as e:
+            sectionN = {
+                "items": []
+            }
+            items = sectionN['items']
 
-                sectionN = {
-                    "items": [
-                        {
-                            "type": "{}".format(item1Type),
-                            "{}".format(item1Key): '',
-                        }, {
-                            "type": "{}".format(item2Type),
-                            "{}".format(item2Key): '',
-                        }
-                    ]
-                }
-                self.description['sections'][currSectionIdx] = sectionN
+            imgItem = makeImgItem(N)
+            textItem = makeTextItem(additionalDescriptions)
 
-            # ====== ITEM 1 ======
-            item = sectionN['items'][0]
+            if not imgItem and not textItem:
+                return dict()
 
-            if item1Type == 'IMAGE':
-                addImg(item, N)
+            if item1Type == 'TEXT':
+                if textItem:
+                    items.append(textItem)
+                if imgItem:
+                    items.append(imgItem)
             else:
-                addText(item)
+                if imgItem:
+                    items.append(imgItem)
+                if textItem:
+                    items.append(textItem)
 
-            # ====== ITEM 2 ======
-            item = sectionN['items'][1]
+            return sectionN
 
-            if item1Type == 'IMAGE':
-                addImg(item, N)
+        for N in range(maxAdditionalSections):
+            sectionN = makeAdditionalSection(N)
+
+            if sectionN:
+                self.description['sections'].append(sectionN)
             else:
-                addText(item)
-
-            if not sectionN['items']:
-                del sectionN
-                currSectionIdx += 1
                 break
 
-            currSectionIdx += 1
         # ==================================== LAST SECTION ===========================================
-        sectionN = self.description['sections'][currSectionIdx]
+        sectionLast = {
+            "items": [],
+        }
 
         # ====== ITEM 1 ======
-        item = sectionN['items'][0]
+        item = dict()
 
         try:
-            item['content'] += '<p><b>Pasuje do:</b>\n{}</p>\n'.format(self.prod.getCompatibleModelsDesc())
+            item['content'] = '<p><b>Pasuje do:</b>\n{}</p>\n'.format(self.prod.getCompatibleModelsDesc())
+            item['type'] = 'TEXT'
         except LookupError as e:
             log.debug(repr(e))
 
-        if not item['content']:
-            del item
+        if item:
+            sectionLast['items'].append(item)
 
-        if not sectionN['items']:
-            del sectionN
+        if sectionLast['items']:
+            self.description['sections'].append(sectionLast)
+
         # =============================================================================================
 
         self._descriptionSet = True
         return self.description
-

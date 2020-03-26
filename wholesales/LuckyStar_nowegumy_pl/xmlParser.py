@@ -200,7 +200,7 @@ class LuckyStarProduct:
         def isAdditionalDescription(desc):
             validators = [keywordsMatch, ]
 
-            validators[-1] = isOverMinLength
+            validators.append(isOverMinLength)
 
             for validator in validators:
                 validity = validator(desc)
@@ -211,11 +211,11 @@ class LuckyStarProduct:
 
         descriptions = list()
 
-        for desc in self.product.findall('ng:OPIS', ns):
+        for desc in self.product.iter('{' + ns['ng'] + '}' + 'OPIS'):
             descName = desc.find('ng:NAZWA', ns).text
             descValue = desc.find('ng:WARTOSC', ns).text
 
             if isAdditionalDescription(desc):
-                descriptions.append({descName: descValue})
+                descriptions.append((descName, descValue))
 
         return descriptions
