@@ -168,7 +168,7 @@ class RestAPI:
 
         b64_string = RestAPI.tokenObj['access_token'] + "=" * (
                 (4 - len(RestAPI.tokenObj['access_token']) % 4) % 4 + 1)  # adds proper padding to base64 string
-        matchObj = re.search(b'\"user_name\":\"([0-9]+)\"', b64decode(b64_string))
+        matchObj = re.search(b'\"user_name\":\"([0-9]+)\"', b64decode(b64_string), re.IGNORECASE)
         sellerID = matchObj.group(1).decode("UTF-8")
         log.debug(sellerID)
 

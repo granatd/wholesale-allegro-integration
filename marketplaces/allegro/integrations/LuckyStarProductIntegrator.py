@@ -204,7 +204,7 @@ class LuckyStarProductIntegrator:
                             availVal = item['value']
 
                             pattern = r'\b{}\b'.format(val.lower())
-                            if re.search(pattern, availVal.lower()):
+                            if re.search(pattern, availVal, re.IGNORECASE):
                                 valueIds.append(item['id'])
                                 if availParam['restrictions']['multipleChoices'] is False:
                                     break
@@ -391,7 +391,8 @@ class LuckyStarProductIntegrator:
         item = dict()
 
         try:
-            item['content'] = '<p><b>Informacje ogólne:</b>\n{}</p>\n'.format(self.prod.getOverallInfo())
+            item['content'] = '<p><b>Informacje ogólne:</b></p>\n' \
+                              '<p>{}</p>\n'.format(self.prod.getOverallInfo())
             item['type'] = 'TEXT'
         except LookupError as e:
             log.debug(repr(e))

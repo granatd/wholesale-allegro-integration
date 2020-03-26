@@ -198,11 +198,11 @@ class LuckyStarProduct:
             descName = desc.find('ng:NAZWA', ns).text
 
             for includedKey in includedKeys:
-                if re.search(includedKey, descName):
+                if re.search(includedKey, descName, re.IGNORECASE):
                     return True
 
             for excludedKey in excludedKeys:
-                if re.search(excludedKey, descName):
+                if re.search(excludedKey, descName, re.IGNORECASE):
                     return False
 
         def isAdditionalDescription(desc):
