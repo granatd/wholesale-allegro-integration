@@ -36,28 +36,6 @@ class Auction:
                             'price': {'amount': '609', 'currency': 'PLN'},
                             }
         }
-        #     'afterSalesServices': {'impliedWarranty': {'id': '95b451bf-7fd6-4d46-9bc1-ac6516eeb065'},
-        #                            'returnPolicy': {'id': 'f7b5005b-4b46-45d7-bab8-e17208729f2c'},
-        #                            'warranty': {'id': '593b3ed0-655c-40e6-acbc-7782351cca75'}},
-        #     'delivery': {
-        #                  'handlingTime': 'PT24H',
-        #                  'shippingRates': {'id': 'cde2d24a-ab38-461d-96da-ade36d99e7cf'}},
-        #     'description': 'Opis',
-        #     'ean': None,
-        #     'images': None,
-        #     'location': {'city': 'Łódź',
-        #                  'countryCode': 'PL',
-        #                  'postCode': '90-619',
-        #                  'province': 'LODZKIE'},
-        #     'name': None,
-        #     'parameters': None,
-        #     'payments': {'invoice': 'VAT'},
-        #     'sellingMode': {'format': 'BUY_NOW',
-        #                     'price': {'amount': None, 'currency': 'PLN'},
-        #                     },
-        #     'stock': {'available': None, 'unit': 'UNIT'},
-        #     'category': None,
-        # }
 
         self.restMod = RestAPI()
         self.integrator = integrator
@@ -68,7 +46,7 @@ class Auction:
         self.setImgLinks(integrator.getImages())
         self.setDescription(integrator.getDesc(self.imgLinks))
         self.setStockCount(integrator.getStockCount())
-        # self.setParams(integrator.getParams(self.getCategoryParams()))
+        self.setParams(integrator.getParams(self.getCategoryParams()))
 
         log.debug('\n\nCreated template:\n\n'
                   '{}'.format(pformat(self.template)))

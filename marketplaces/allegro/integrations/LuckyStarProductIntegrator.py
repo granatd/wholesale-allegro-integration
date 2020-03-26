@@ -224,6 +224,9 @@ class LuckyStarProductIntegrator:
                           availParam['type'].lower() == 'integer') and \
                             availParam['restrictions']['range'] is False:
                         val = float(val.replace(',', '.'))
+                        if not val % 1:
+                            val = int(val)
+
                         if val < availParam['restrictions']['min']:
                             val = availParam['restrictions']['min']
                         elif val > availParam['restrictions']['max']:
@@ -232,14 +235,14 @@ class LuckyStarProductIntegrator:
                         params.append({
                             'id': availParam['id'],
                             'valuesIds': [],
-                            'values': val,
+                            'values': [val],
                             'rangeValue': None
                         })
                     elif availParam['type'].lower() is 'string':
                         params.append({
                             'id': availParam['id'],
                             'valuesIds': [],
-                            'values': val,
+                            'values': [val],
                             'rangeValue': None
                         })
             except LookupError as e:
@@ -248,7 +251,7 @@ class LuckyStarProductIntegrator:
                 # traceback.print_tb(e.__traceback__)
                 continue
 
-        self.params = {'parameters': params}
+        self.params = params
         return self.params
 
     def isDescriptionSet(self):
