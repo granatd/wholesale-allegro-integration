@@ -1,5 +1,6 @@
 import os
 import re
+import html
 import traceback
 import logging as log
 
@@ -109,8 +110,7 @@ class LuckyStarProductIntegrator:
         if self.images:
             return self.images
 
-        images = self.prod.getImages()
-        self.images = [{'url': img} for img in images]
+        self.images = self.prod.getImages()
 
         return self.images
 
@@ -254,7 +254,7 @@ class LuckyStarProductIntegrator:
     def isDescriptionSet(self):
         return self._descriptionSet
 
-    def getDesc(self):
+    def getDesc(self, allegroImgLinks):
 
         if self.isDescriptionSet():
             return self.description
@@ -371,7 +371,7 @@ class LuckyStarProductIntegrator:
         # ====== ITEM 2 =======
         item = section2['items'][1]
         try:
-            item['url'] = self.images[0]['url']
+            item['url'] = allegroImgLinks[0]['url']
         except IndexError:
             log.debug('Can\'t make img item in section2!')
             del section2['items'][1]
@@ -407,7 +407,7 @@ class LuckyStarProductIntegrator:
             item = dict()
 
             try:
-                item['url'] = self.images[1 + additionalDescNum]['url']
+                item['url'] = allegroImgLinks[1 + additionalDescNum]['url']
                 item['type'] = 'IMAGE'
             except IndexError:
                 log.debug('Can\'t make img item in sectionN!')
@@ -419,6 +419,7 @@ class LuckyStarProductIntegrator:
 
             try:
                 additionalDescName, additionalDescVal = additionalDescriptions.pop()
+                additionalDescVal = html.escape(additionalDescVal)
                 item['content'] = '<p><b>{}:</b></p>\n' \
                                     '<p>{}</p>\n'.format(additionalDescName, additionalDescVal)
                 item['type'] = 'TEXT'

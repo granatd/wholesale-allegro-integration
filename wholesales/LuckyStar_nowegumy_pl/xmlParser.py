@@ -178,10 +178,18 @@ class LuckyStarProduct:
     def getAdditionalDescription(self):
 
         def isOverMinLength(desc):
-            minChars = 8000000
+            minChars = 80
             descValue = desc.find('ng:WARTOSC', ns).text
 
             return len(descValue) > minChars
+
+        # def replaceForbiddenHTMLtags(desc):
+        #     descValue = desc.find('ng:WARTOSC', ns)
+        #     descValueText = descValue.text
+        #     forbiddenTags = ['<a href=(.+)>', '<img src=(.+)>', '</a>',]
+        #
+        #     re.search
+
 
         def keywordsMatch(desc):
             includedKeys = [r'\bO\b']

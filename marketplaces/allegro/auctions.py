@@ -7,6 +7,7 @@ import requests
 from pprint import pformat
 from base64 import b64encode, b64decode
 
+MAX_TRIES = 1
 fmt = "[%(levelname)s:%(filename)s:%(lineno)s: %(funcName)s()] %(message)s"
 log.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"), format=fmt)
 log = log.getLogger(__name__)
@@ -14,8 +15,9 @@ log = log.getLogger(__name__)
 
 class Auction:
     def __init__(self, integrator):
+        self.imgLinks = None
         self.template = {
-            'name': 'michal',
+            'name': None,
             'location': {'city': 'Łódź',
                          'countryCode': 'PL',
                          'postCode': '90-619',
@@ -59,13 +61,12 @@ class Auction:
 
         self.restMod = RestAPI()
         self.integrator = integrator
-        self.images = integrator.getImages()
 
         self.setCategory(integrator.getCategory())
         self.setPrice(integrator.getPrice())
         self.setTitle(integrator.getTitle())
-        self.setImages(integrator.getImages())
-        self.setDescription(integrator.getDesc())
+        self.setImgLinks(integrator.getImages())
+        self.setDescription(integrator.getDesc(self.imgLinks))
         self.setStockCount(integrator.getStockCount())
         # self.setParams(integrator.getParams(self.getCategoryParams()))
 
@@ -75,8 +76,10 @@ class Auction:
     def setTitle(self, name):
         self.template['name'] = name
 
-    def setImages(self, images):
-        self.template['images'] = images
+    def setImgLinks(self, images):
+        allegroLinks = RestAPI.postImages(images)
+        self.imgLinks = [{'url': link} for link in allegroLinks]
+        self.template['images'] = self.imgLinks
 
     def setCategory(self, category):
         self.template['category'] = category
@@ -94,8 +97,7 @@ class Auction:
         self.template['sellingMode']['price'] = price
 
     def push(self):
-        images = [img['url'] for img in self.images]
-        self.restMod.pushOffer(self.template, images)
+        self.restMod.pushOffer(self.template)
 
     def getCategoryParams(self):
         return self.restMod.getCategoryParams(self.integrator.getCategory()['id'])
@@ -208,7 +210,7 @@ class RestAPI:
         if headers is not None:
             header.update(headers)
 
-        for i in range(3):
+        for i in range(MAX_TRIES):
             req = requests.Request(method, resource,
                                    headers=header,
                                    data=data, json=json).prepare()
@@ -229,7 +231,7 @@ class RestAPI:
 
         respText = 'Response:\n' + \
                    pformat(resp.json())
-        if 300 <= resp.status_code < 200:
+        if resp.status_code < 200 or resp.status_code >= 300:
             raise ConnectionError(respText)
 
         log.debug(respText)
@@ -268,21 +270,21 @@ class RestAPI:
         if not images:
             return
 
-        RestAPI._rest('POST', 'https://api.allegro.pl/sale/images',
-                      json={
-                          'url': '{}'.format(img) for img in images
-                      }, bearer=True)
+        links = list()
+        for img in images:
+            resp = RestAPI._rest('POST', 'https://api.allegro.pl/sale/images', json={'url': '{}'.format(img)}, bearer=True)
+            links.append(resp['location'])
+
+        return links
 
     @staticmethod
     def getOfferDetails(offerID):
         return RestAPI._rest('GET', 'https://api.allegro.pl/sale/offers/{}'.format(offerID), bearer=True)
 
     @staticmethod
-    def pushOffer(offerTemplate, images):
+    def pushOffer(offerTemplate):
         log.debug('\n\nofferTemplate: json= \n\n'
                   '{}\n'.format(repr(offerTemplate)))
-
-        RestAPI.postImages(images)
 
         resp = RestAPI._rest('POST', 'https://api.allegro.pl/sale/offers', json=offerTemplate, bearer=True)
         errors = resp['validation']['errors']
