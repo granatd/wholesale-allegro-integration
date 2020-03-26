@@ -40,6 +40,7 @@ class Auction:
         self.restMod = RestAPI()
         self.integrator = integrator
 
+        self.setEAN(integrator.getEAN())
         self.setCategory(integrator.getCategory())
         self.setPrice(integrator.getPrice())
         self.setTitle(integrator.getTitle())
@@ -53,6 +54,9 @@ class Auction:
 
     def setTitle(self, name):
         self.template['name'] = name
+
+    def setEAN(self, ean):
+        self.template['ean'] = ean
 
     def setImgLinks(self, images):
         allegroLinks = RestAPI.postImages(images)

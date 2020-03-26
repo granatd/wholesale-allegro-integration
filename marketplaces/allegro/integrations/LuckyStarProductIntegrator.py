@@ -16,7 +16,7 @@ class LuckyStarProductIntegrator:
 
         self.allegro2ngMap = {
             'Marka': 'Producent',
-            'Model': None,
+            'Model': 'Nazwa',
             'Kod producenta': 'Kod producenta',
             'Szerokość opony': 'Szerokość',
             'Profil opony': 'Wysokość',
@@ -84,6 +84,7 @@ class LuckyStarProductIntegrator:
         ]}
 
         self.title = None
+        self.EAN = None
         self.price = None
         self.category = None
         self.params = None
@@ -96,6 +97,12 @@ class LuckyStarProductIntegrator:
             self.title = self.prod.getTitle()
 
         return self.title
+
+    def getEAN(self):
+        if self.EAN is None:
+            self.EAN = self.prod.getEAN()
+
+        return self.EAN
 
     def getPrice(self):
         if self.price is not None:
@@ -238,7 +245,7 @@ class LuckyStarProductIntegrator:
                             'values': [val],
                             'rangeValue': None
                         })
-                    elif availParam['type'].lower() is 'string':
+                    elif availParam['type'].lower() == 'string':
                         params.append({
                             'id': availParam['id'],
                             'valuesIds': [],
