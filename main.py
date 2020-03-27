@@ -9,6 +9,7 @@ from marketplaces.allegro.integrations.LuckyStarProductIntegrator import LuckySt
 
 ERROR_FILE_NAME = 'auction.error'
 LAST_AUCTION_FILE_NAME = 'auction.log'
+MAX_AUCTIONS_TO_SEND = 1
 
 fmt = "[%(levelname)s:%(filename)s:%(lineno)s: %(funcName)s()] %(message)s"
 log.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"), format=fmt)
@@ -47,31 +48,51 @@ def readObjFromFile(file):
         return pickle.load(f)
 
 
-def main():
+def handleLastErrors():
     try:
         print('Starting diagnose mode...')
 
-        lastAuction: Auction = readObjFromFile(LAST_AUCTION_FILE_NAME)
+        lastAuctionNum = None
+        lastAuctionTemplate = None
+        lastObj = readObjFromFile(LAST_AUCTION_FILE_NAME)
+
+        lastSentAuction: Auction = lastObj['Auction']
+        if lastSentAuction is not None:
+            lastAuctionNum = lastSentAuction['num']
+            lastAuctionTemplate = lastSentAuction.getTemplate()
+
         print('Last successfull auction number: {}\n'
               'template:\n'
-              '{}\n'.format(lastAuction['num'], lastAuction.getTemplate()))
+              '{}\n'.format(lastAuctionNum, lastAuctionTemplate))
 
+    except FileNotFoundError:
+        lastAuctionNum = 0
+
+    try:
         e = readObjFromFile(ERROR_FILE_NAME)
+
         print('Found previous error log traceback:')
         traceback.print_tb(e.__traceback__)
-        print('\nTo run programme, please fix this error and remove \'{}\' file!'.format(ERROR_FILE_NAME))
+        raise EnvironmentError('\nTo run programme, please fix this error and remove \'{}\' file!'
+                               .format(ERROR_FILE_NAME))
 
-        return
     except FileNotFoundError:
         print('No previous errors found!\n'
-                  'Starting normal run...\n')
+              'Starting normal run...\n')
+
+        return lastAuctionNum
+
+
+def main():
+    lastAuctionNum = handleLastErrors()
+
+    wholesale = createLuckyStarWholesale()
+
+    for i in range(lastAuctionNum):  # skip already sent products
+        wholesale.getProduct()
 
     RestAPI.deviceFlowOAuth()
-    # RestAPI.getShippingRates()
-    # RestAPI.getCategoryParams('257687')
-    # RestAPI.getOfferDetails('9068419944')
-    wholesale = createLuckyStarWholesale()
-    for i in range(1):
+    for i in range(MAX_AUCTIONS_TO_SEND):
         try:
             prod = wholesale.getProduct()
             integrator = LuckyStarProductIntegrator(prod)
@@ -82,13 +103,19 @@ def main():
 
         try:
             auction = Auction(integrator)
+
             auction.push()
+            auction.publish()
+
+            lastSentAuction = auction
+
         except Exception as e:
             saveError(e)
 
-            if auction is not None:
-                saveAuction(auction)
-            raise e
+            if auction is None:
+                raise e
+
+            saveAuction(lastSentAuction, i)
 
 
 if __name__ == '__main__':
