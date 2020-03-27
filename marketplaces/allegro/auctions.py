@@ -81,6 +81,9 @@ class Auction:
     def push(self):
         self.restMod.pushOffer(self.template)
 
+    def getTemplate(self):
+        return self.template
+
     def getCategoryParams(self):
         return self.restMod.getCategoryParams(self.integrator.getCategory()['id'])
 

@@ -67,6 +67,9 @@ class LuckyStarWholesale:
     def toFirstProduct(self):
         self.productIdx = 0
 
+    def getProductNr(self):
+        return self.productIdx
+
     def getProduct(self):
         self.product = LuckyStarProduct(self.products[self.productIdx])
         self.productIdx += 1
