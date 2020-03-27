@@ -4,6 +4,8 @@ import requests
 import logging as log
 import xml.etree.ElementTree as eT
 
+MIN_STOCK_COUNT = 10
+
 ns = {'ng': 'http://nowegumy.pl'}
 
 fmt = "[%(levelname)s:%(filename)s:%(lineno)s: %(funcName)s()] %(message)s"
@@ -38,7 +40,7 @@ class LuckyStarWholesale:
         state = prod.find('ng:STAN', ns)
         count = state.text
 
-        if int(count) < 5:
+        if int(count) < MIN_STOCK_COUNT:
             return True
 
         price = prod.find('ng:CENA_BRUTTO', ns)
