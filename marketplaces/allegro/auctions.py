@@ -12,6 +12,8 @@ import marketplaces.allegro.fileReader as Fr
 MAX_TRIES = 1
 ALLEGRO_TOKEN_FILE = 'allegro.token'
 ALLEGRO_OFFERS_FILE = 'allegro.offers'
+ALLEGRO_OFFERS_STATUS_FILE = 'allegro.offers.status'
+
 fmt = "[%(levelname)s:%(filename)s:%(lineno)s: %(funcName)s()] %(message)s"
 log.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"), format=fmt)
 log = log.getLogger(__name__)
@@ -19,6 +21,9 @@ log = log.getLogger(__name__)
 
 class Auction:
     nextFreeNum = 1
+    commandsIds = list()
+    commandsStatus = list()
+
     def __init__(self, integrator):
         self.template = {
             'name': None,
@@ -63,6 +68,31 @@ class Auction:
     @staticmethod
     def setNextFreeNum(num):
         Auction.nextFreeNum = num
+
+    @staticmethod
+    def getStatus(cmdId):
+        return RestAPI.getOfferStatus(cmdId)
+
+    @staticmethod
+    def getCommandsStatus():
+        Auction.commandsStatus = [
+            {cmdId: Auction.getStatus(cmdId)} for cmdId in Auction.commandsIds
+        ]
+
+    @staticmethod
+    def saveCommandsStatus():
+        Fr.saveObjToFile(Auction.commandsStatus, ALLEGRO_OFFERS_STATUS_FILE)
+
+    @staticmethod
+    def printCommandsStatus():
+        print(pformat(Auction.commandsStatus))
+
+    @staticmethod
+    def handleCommandsStatus():
+        Auction.getCommandsStatus()
+        Auction.saveCommandsStatus()
+        Auction.printCommandsStatus()
+
     def incrementNextFreeNum(self):
             Auction.nextFreeNum += 1
 
@@ -283,6 +313,11 @@ class RestAPI:
     @staticmethod
     def getOfferDetails(offerID):
         return RestAPI._rest('GET', 'https://api.allegro.pl/sale/offers/{}'.format(offerID), bearer=True)
+
+    @staticmethod
+    def getOfferStatus(cmdId):
+        return RestAPI._rest('GET', 'https://api.allegro.pl/sale/offer-publication-commands/{}'.format(cmdId),
+                             bearer=True)
 
     @staticmethod
     def pushOffer(offerTemplate):

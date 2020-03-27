@@ -110,6 +110,12 @@ def main():
 
             saveAuction(lastSentAuction, i)
 
+    Auction.handleCommandsStatus()
+
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except Exception:
+        Auction.handleCommandsStatus()
+        raise
