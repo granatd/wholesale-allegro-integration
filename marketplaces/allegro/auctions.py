@@ -98,6 +98,9 @@ class Auction:
     def saveOfferToFile(self):
         Fr.saveObjToFile(self.offer, ALLEGRO_OFFERS_FILE + '.' + str(self.num))
 
+    def publish(self):
+        commandId = self.restMod.publishOffer(self.offer)
+        Auction.commandsIds.append(commandId)
 
     def getTemplate(self):
         return self.template
@@ -295,5 +298,34 @@ class RestAPI:
         return resp
 
     @staticmethod
-    def publish():
-        pass
+    def publishOffer(draftId):
+        template = {
+            "publication": {
+                "action": "ACTIVATE",  # wymagane, dostępne są dwie wartości:
+                # - ACTIVATE(aktywowanie danych ofert) i
+                # - END(zakończenie danych ofert)
+                # "scheduledFor": "2018-03-28T12:00:00.000Z"    # niewymagane, wysyłasz jeśli chcesz
+                # zaplanować wystawienie oferty w przyszłości
+            },
+            "offerCriteria": [
+                {
+                    "offers": [  # wymagane, tablica obiektów z numerami identyfikacyjnymi ofert - max 1000 ofert
+                        {
+                            "id": ""
+                        }
+                    ],
+                    "type": "CONTAINS_OFFERS"  # wymagane, obecnie dostępna jest jedna wartość:
+                    # CONTAINS_OFFERS(oferty, w których zmienimy status)
+                }
+            ]
+        }
+
+        log.debug('Publishing \'{}\' offer...'.format(draftId))
+
+        commandId = uuid.uuid4()
+        template['offerCriteria']['offers']['id'] = draftId
+
+        resp = RestAPI._rest('PUT', 'https://api.allegro.pl/sale/offer-publication-commands/{}'.format(commandId),
+                             json=template, bearer=True)
+
+        return commandId
