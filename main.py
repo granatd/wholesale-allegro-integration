@@ -34,14 +34,7 @@ def main():
             wholesale.toFirstProduct()
             break
 
-        try:
-            # log.debug(pformat(integrator.getDesc()))
-            auction = Auction(integrator)
-        except ValueError as e:
-            log.debug('Auction creation error:\n'
-                      '{}'.format(repr(e)))
-            continue
-
+        auction = Auction(integrator)
         auction.push()
 
 
