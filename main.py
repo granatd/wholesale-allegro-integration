@@ -1,8 +1,8 @@
 import os
-import pickle
 import traceback
 import logging as log
 from pprint import pformat
+import marketplaces.allegro.fileReader as Fr
 from wholesales.LuckyStar_nowegumy_pl.xmlParser import LuckyStarWholesale
 from marketplaces.allegro.auctions import RestAPI, Auction
 from marketplaces.allegro.integrations.LuckyStarProductIntegrator import LuckyStarProductIntegrator
@@ -25,13 +25,8 @@ def createLuckyStarWholesale():
     return wholesale
 
 
-def saveObjToFile(obj, file):
-    with open(file, 'wb') as f:
-        pickle.dump(obj, f)
-
-
 def saveError(e):
-    return saveObjToFile(e, 'auctionLastObj.error')
+    return Fr.saveObjToFile(e, 'auctionLastObj.error')
 
 
 def saveAuction(auction, num):
@@ -40,12 +35,7 @@ def saveAuction(auction, num):
     obj['num'] = num
     obj['auction'] = auction
 
-    return saveObjToFile(obj, 'auctionLastObj.log')
-
-
-def readObjFromFile(file):
-    with open(file, 'rb') as f:
-        return pickle.load(f)
+    return Fr.saveObjToFile(obj, 'auctionLastObj.log')
 
 
 def handleLastErrors():
@@ -54,7 +44,7 @@ def handleLastErrors():
 
         lastAuctionNum = None
         lastAuctionTemplate = None
-        lastObj = readObjFromFile(LAST_AUCTION_FILE_NAME)
+        lastObj = Fr.readObjFromFile(LAST_AUCTION_FILE_NAME)
 
         lastSentAuction: Auction = lastObj['Auction']
         if lastSentAuction is not None:
@@ -69,7 +59,7 @@ def handleLastErrors():
         lastAuctionNum = 0
 
     try:
-        e = readObjFromFile(ERROR_FILE_NAME)
+        e = Fr.readObjFromFile(ERROR_FILE_NAME)
 
         print('Found previous error log traceback:')
         traceback.print_tb(e.__traceback__)

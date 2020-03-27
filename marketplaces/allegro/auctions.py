@@ -6,6 +6,7 @@ import logging as log
 import requests
 from pprint import pformat
 from base64 import b64encode, b64decode
+import marketplaces.allegro.fileReader as Fr
 
 MAX_TRIES = 1
 fmt = "[%(levelname)s:%(filename)s:%(lineno)s: %(funcName)s()] %(message)s"
@@ -110,15 +111,11 @@ class RestAPI:
 
     @staticmethod
     def readToken():
-        with open('allegro.token', 'rb') as tokenFile:
-            RestAPI.tokenObj = pickle.load(tokenFile)
-
-        return RestAPI.tokenObj
+        return Fr.readObjFromFile(ALLEGRO_TOKEN_FILE)
 
     @staticmethod
     def saveToken(tokenObj):
-        with open('allegro.token', 'wb') as tokenFile:
-            pickle.dump(tokenObj, tokenFile)
+        Fr.saveObjToFile(tokenObj, ALLEGRO_TOKEN_FILE)
 
     @staticmethod
     def deviceFlowOAuth():
