@@ -58,6 +58,8 @@ def handleLastErrors():
     except FileNotFoundError:
         lastAuctionNum = 0
 
+    Auction.setNextFreeNum(lastAuctionNum + 1)
+
     try:
         e = Fr.readObjFromFile(ERROR_FILE_NAME)
 
@@ -95,6 +97,7 @@ def main():
             auction = Auction(integrator)
 
             auction.push()
+            auction.saveOfferToFile()
             auction.publish()
 
             lastSentAuction = auction

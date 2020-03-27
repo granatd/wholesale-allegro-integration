@@ -1,22 +1,25 @@
 import os
 import re
+import uuid
 import time
 import pickle
-import logging as log
 import requests
+import logging as log
 from pprint import pformat
 from base64 import b64encode, b64decode
 import marketplaces.allegro.fileReader as Fr
 
 MAX_TRIES = 1
+ALLEGRO_TOKEN_FILE = 'allegro.token'
+ALLEGRO_OFFERS_FILE = 'allegro.offers'
 fmt = "[%(levelname)s:%(filename)s:%(lineno)s: %(funcName)s()] %(message)s"
 log.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"), format=fmt)
 log = log.getLogger(__name__)
 
 
 class Auction:
+    nextFreeNum = 1
     def __init__(self, integrator):
-        self.imgLinks = None
         self.template = {
             'name': None,
             'location': {'city': 'Łódź',
@@ -38,8 +41,12 @@ class Auction:
                             }
         }
 
+        self.offer = None
+        self.imgLinks = None
         self.restMod = RestAPI()
         self.integrator = integrator
+        self.num = Auction.nextFreeNum
+        self.incrementNextFreeNum()
 
         self.setEAN(integrator.getEAN())
         self.setCategory(integrator.getCategory())
@@ -52,6 +59,12 @@ class Auction:
 
         log.debug('\n\nCreated template:\n\n'
                   '{}'.format(pformat(self.template)))
+
+    @staticmethod
+    def setNextFreeNum(num):
+        Auction.nextFreeNum = num
+    def incrementNextFreeNum(self):
+            Auction.nextFreeNum += 1
 
     def setTitle(self, name):
         self.template['name'] = name
@@ -80,7 +93,11 @@ class Auction:
         self.template['sellingMode']['price'] = price
 
     def push(self):
-        self.restMod.pushOffer(self.template)
+        self.offer = self.restMod.pushOffer(self.template)
+
+    def saveOfferToFile(self):
+        Fr.saveObjToFile(self.offer, ALLEGRO_OFFERS_FILE + '.' + str(self.num))
+
 
     def getTemplate(self):
         return self.template
@@ -254,7 +271,8 @@ class RestAPI:
 
         links = list()
         for img in images:
-            resp = RestAPI._rest('POST', 'https://api.allegro.pl/sale/images', json={'url': '{}'.format(img)}, bearer=True)
+            resp = RestAPI._rest('POST', 'https://api.allegro.pl/sale/images', json={'url': '{}'.format(img)},
+                                 bearer=True)
             links.append(resp['location'])
 
         return links
@@ -269,9 +287,12 @@ class RestAPI:
                   '{}\n'.format(repr(offerTemplate)))
 
         resp = RestAPI._rest('POST', 'https://api.allegro.pl/sale/offers', json=offerTemplate, bearer=True)
+
         errors = resp['validation']['errors']
         if errors:
-            raise IOError('errors:\n {}'.format(repr(errors)))
+            raise IOError('errors:\n {}'.format(pformat(resp)))
+
+        return resp
 
     @staticmethod
     def publish():
