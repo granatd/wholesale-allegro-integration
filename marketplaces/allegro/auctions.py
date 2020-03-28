@@ -2,14 +2,13 @@ import os
 import re
 import uuid
 import time
-import pickle
 import requests
 import logging as log
 from pprint import pformat
 from base64 import b64encode, b64decode
 import marketplaces.allegro.fileReader as Fr
 
-MAX_TRIES = 1
+MAX_TRIES = 2
 ALLEGRO_TOKEN_FILE = 'allegro.token'
 ALLEGRO_OFFERS_FILE = 'allegro.offers'
 ALLEGRO_OFFERS_STATUS_FILE = 'allegro.offers.status'
@@ -129,7 +128,7 @@ class Auction:
         Fr.saveObjToFile(self.offer, ALLEGRO_OFFERS_FILE + '.' + str(self.num))
 
     def publish(self):
-        commandId = self.restMod.publishOffer(self.offer)
+        commandId = self.restMod.publishOffer(self.offer['id'])
         Auction.commandsIds.append(commandId)
 
     def getTemplate(self):
@@ -358,9 +357,9 @@ class RestAPI:
         log.debug('Publishing \'{}\' offer...'.format(draftId))
 
         commandId = uuid.uuid4()
-        template['offerCriteria']['offers']['id'] = draftId
+        template['offerCriteria'][0]['offers'][0]['id'] = draftId
 
-        resp = RestAPI._rest('PUT', 'https://api.allegro.pl/sale/offer-publication-commands/{}'.format(commandId),
+        RestAPI._rest('PUT', 'https://api.allegro.pl/sale/offer-publication-commands/{}'.format(commandId),
                              json=template, bearer=True)
 
         return commandId

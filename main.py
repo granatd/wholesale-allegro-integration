@@ -1,15 +1,13 @@
 import os
-import traceback
 import logging as log
-from pprint import pformat
 import marketplaces.allegro.fileReader as Fr
 from wholesales.LuckyStar_nowegumy_pl.xmlParser import LuckyStarWholesale
 from marketplaces.allegro.auctions import RestAPI, Auction
 from marketplaces.allegro.integrations.LuckyStarProductIntegrator import LuckyStarProductIntegrator
 
 ERROR_FILE_NAME = 'auction.error'
-LAST_AUCTION_FILE_NAME = 'auction.log'
-MAX_AUCTIONS_TO_SEND = 1
+LAST_AUCTION_FILE_NAME = 'last_auction.log'
+MAX_AUCTIONS_TO_SEND = 10
 
 fmt = "[%(levelname)s:%(filename)s:%(lineno)s: %(funcName)s()] %(message)s"
 log.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"), format=fmt)
@@ -26,7 +24,7 @@ def createLuckyStarWholesale():
 
 
 def saveError(e):
-    return Fr.saveObjToFile(e, 'auctionLastObj.error')
+    return Fr.saveObjToFile(e, ERROR_FILE_NAME)
 
 
 def saveAuction(auction, num):
@@ -35,7 +33,7 @@ def saveAuction(auction, num):
     obj['num'] = num
     obj['auction'] = auction
 
-    return Fr.saveObjToFile(obj, 'auctionLastObj.log')
+    return Fr.saveObjToFile(obj, LAST_AUCTION_FILE_NAME)
 
 
 def handleLastErrors():
@@ -63,8 +61,8 @@ def handleLastErrors():
     try:
         e = Fr.readObjFromFile(ERROR_FILE_NAME)
 
-        print('Found previous error log traceback:')
-        traceback.print_tb(e.__traceback__)
+        print('Found previous error log:\n' + str(e))
+
         raise EnvironmentError('\nTo run programme, please fix this error and remove \'{}\' file!'
                                .format(ERROR_FILE_NAME))
 
@@ -76,6 +74,7 @@ def handleLastErrors():
 
 
 def main():
+    lastSentAuction = None
     lastAuctionNum = handleLastErrors()
 
     wholesale = createLuckyStarWholesale()
@@ -105,7 +104,7 @@ def main():
         except Exception as e:
             saveError(e)
 
-            if auction is None:
+            if lastSentAuction is None:
                 raise e
 
             saveAuction(lastSentAuction, i)

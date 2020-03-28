@@ -1,7 +1,6 @@
 import os
 import re
 import html
-import traceback
 import logging as log
 
 fmt = "[%(levelname)s:%(filename)s:%(lineno)s: %(funcName)s()] %(message)s"
