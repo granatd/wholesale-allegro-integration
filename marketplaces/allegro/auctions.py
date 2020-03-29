@@ -80,7 +80,21 @@ class Auction:
 
     @staticmethod
     def saveCommandsStatus():
-        Fr.saveObjToFile(Auction.commandsStatus, ALLEGRO_OFFERS_STATUS_FILE)
+        commandsStats = Auction.commandsStatus
+
+        log.debug('Getting new commandsStats: {}'.format(commandsStats))
+        try:
+            log.debug('Searching old stats')
+
+            commandsStats += Fr.readObjFromFile(ALLEGRO_OFFERS_STATUS_FILE)
+
+            log.debug('Old stats appended: {}'.format(commandsStats))
+        except FileNotFoundError:
+            log.debug('Old stats not found!')
+
+        Fr.saveObjToFile(commandsStats, ALLEGRO_OFFERS_STATUS_FILE)
+
+        log.debug('Stats sucessfully saved to file \'{}\''.format(ALLEGRO_OFFERS_STATUS_FILE))
 
     @staticmethod
     def printCommandsStatus():
