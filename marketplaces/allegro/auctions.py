@@ -37,7 +37,7 @@ class Auction:
                 'warranty': {'id': '593b3ed0-655c-40e6-acbc-7782351cca75'}},
             'delivery': {
                 'handlingTime': 'PT24H',
-                'shippingRates': {'id': 'cde2d24a-ab38-461d-96da-ade36d99e7cf'}},
+                'shippingRates': {'id': 'a5805e2a-3613-406f-a91f-c924f944fa0b'}},
             'stock': {'available': '2', 'unit': 'UNIT'},
             'category': {'id': '257698'},
             'sellingMode': {'format': 'BUY_NOW',
