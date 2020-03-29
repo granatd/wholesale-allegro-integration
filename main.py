@@ -41,17 +41,16 @@ def handleLastErrors():
         print('Starting diagnose mode...')
 
         lastAuctionNum = None
-        lastAuctionTemplate = None
+        lastAuction = None
         lastObj = Fr.readObjFromFile(LAST_AUCTION_FILE_NAME)
 
-        lastSentAuction: Auction = lastObj['Auction']
-        if lastSentAuction is not None:
-            lastAuctionNum = lastSentAuction['num']
-            lastAuctionTemplate = lastSentAuction.getTemplate()
+        if lastObj is not None:
+            lastAuctionNum = lastObj['num']
+            lastAuction = lastObj['auction']
 
         print('Last successfull auction number: {}\n'
-              'template:\n'
-              '{}\n'.format(lastAuctionNum, lastAuctionTemplate))
+              'Auction:\n'
+              '{}\n'.format(lastAuctionNum, lastAuction))
 
     except FileNotFoundError:
         lastAuctionNum = 0
@@ -82,6 +81,7 @@ def main():
         wholesale.getProduct()
 
     RestAPI.deviceFlowOAuth()
+
     for i in range(MAX_AUCTIONS_TO_SEND):
         try:
             prod = wholesale.getProduct()
