@@ -95,13 +95,13 @@ class LuckyStarProductIntegrator:
         if self.title is None:
             self.title = self.prod.getTitle()
 
-        return self.title
+        return html.escape(self.title)
 
     def getEAN(self):
         if self.EAN is None:
             self.EAN = self.prod.getEAN()
 
-        return self.EAN
+        return html.escape(self.EAN)
 
     def getPrice(self):
         if self.price is not None:
@@ -273,15 +273,15 @@ class LuckyStarProductIntegrator:
 
         # ====== ITEM 1 ======
         item = section1['items'][0]
-        item['content'] += '<p><b>Pełna nazwa:</b> {}</p>\n'.format(self.prod.getTitle())
+        item['content'] += '<p><b>Pełna nazwa:</b> {}</p>\n'.format(self.getTitle())
 
         try:
-            item['content'] += '<p><b>Producent:</b> {}</p>\n'.format(self.prod.getProducer())
+            item['content'] += '<p><b>Producent:</b> {}</p>\n'.format(html.escape(self.prod.getProducer()))
         except LookupError as e:
             log.debug(repr(e))
 
         try:
-            item['content'] += '<p><b>Model:</b> {}</p>\n'.format(self.prod.getModel())
+            item['content'] += '<p><b>Model:</b> {}</p>\n'.format(html.escape(self.prod.getModel()))
         except LookupError as e:
             log.debug(repr(e))
 
@@ -295,82 +295,82 @@ class LuckyStarProductIntegrator:
         item = section2['items'][0]
 
         try:
-            item['content'] += '<p><b>Opory toczenia:</b> {}</p>\n'.format(self.prod.getRotationResistance())
+            item['content'] += '<p><b>Opory toczenia:</b> {}</p>\n'.format(html.escape(self.prod.getRotationResistance()))
         except LookupError as e:
             log.debug(repr(e))
 
         try:
-            item['content'] += '<p><b>Hamowanie na mokrym:</b> {}</p>\n'.format(self.prod.getWetTraction())
+            item['content'] += '<p><b>Hamowanie na mokrym:</b> {}</p>\n'.format(html.escape(self.prod.getWetTraction()))
         except LookupError as e:
             log.debug(repr(e))
 
         try:
-            item['content'] += '<p><b>Poziom hałasu:</b> {}</p>\n'.format(self.prod.getNoiseLevel())
+            item['content'] += '<p><b>Poziom hałasu:</b> {}</p>\n'.format(html.escape(self.prod.getNoiseLevel()))
         except LookupError as e:
             log.debug(repr(e))
 
         try:
-            item['content'] += '<p><b>Typ:</b> {}</p>\n'.format(self.prod.getType())
+            item['content'] += '<p><b>Typ:</b> {}</p>\n'.format(html.escape(self.prod.getType()))
         except LookupError as e:
             log.debug(repr(e))
 
         try:
-            item['content'] += '<p><b>Sezon:</b> {}</p>\n'.format(self.prod.getSeason())
+            item['content'] += '<p><b>Sezon:</b> {}</p>\n'.format(html.escape(self.prod.getSeason()))
         except LookupError as e:
             log.debug(repr(e))
 
         try:
-            item['content'] += '<p><b>Rozmiar:</b> {}</p>\n'.format(self.prod.getSize())
+            item['content'] += '<p><b>Rozmiar:</b> {}</p>\n'.format(html.escape(self.prod.getSize()))
         except LookupError as e:
             log.debug(repr(e))
 
         try:
-            item['content'] += '<p><b>Szerokość:</b> {}</p>\n'.format(self.prod.getWidth())
+            item['content'] += '<p><b>Szerokość:</b> {}</p>\n'.format(html.escape(self.prod.getWidth()))
         except LookupError as e:
             log.debug(repr(e))
 
         try:
-            item['content'] += '<p><b>Wysokość:</b> {}</p>\n'.format(self.prod.getHeight())
+            item['content'] += '<p><b>Wysokość:</b> {}</p>\n'.format(html.escape(self.prod.getHeight()))
         except LookupError as e:
             log.debug(repr(e))
 
         try:
-            item['content'] += '<p><b>Rozmiar felgi:</b> {}</p>\n'.format(self.prod.getRimSize())
+            item['content'] += '<p><b>Rozmiar felgi:</b> {}</p>\n'.format(html.escape(self.prod.getRimSize()))
         except LookupError as e:
             log.debug(repr(e))
 
         try:
-            item['content'] += '<p><b>Indeks prędkości:</b> {}</p>\n'.format(self.prod.getVmax())
+            item['content'] += '<p><b>Indeks prędkości:</b> {}</p>\n'.format(html.escape(self.prod.getVmax()))
         except LookupError as e:
             log.debug(repr(e))
 
         try:
-            item['content'] += '<p><b>Indeks nośności:</b> {}</p>\n'.format(self.prod.getLoadIndex())
+            item['content'] += '<p><b>Indeks nośności:</b> {}</p>\n'.format(html.escape(self.prod.getLoadIndex()))
         except LookupError as e:
             log.debug(repr(e))
 
         try:
-            item['content'] += '<p><b>Kod producenta:</b> {}</p>\n'.format(self.prod.getProducerCode())
+            item['content'] += '<p><b>Kod producenta:</b> {}</p>\n'.format(html.escape(self.prod.getProducerCode()))
         except LookupError as e:
             log.debug(repr(e))
 
         try:
-            item['content'] += '<p><b>EAN:</b> {}</p>\n'.format(self.prod.getEAN())
+            item['content'] += '<p><b>EAN:</b> {}</p>\n'.format(html.escape(self.getEAN()))
         except LookupError as e:
             log.debug(repr(e))
 
         try:
-            item['content'] += '<p><b>Identyfikator:</b> {}</p>\n'.format(self.prod.getDestination())
+            item['content'] += '<p><b>Identyfikator:</b> {}</p>\n'.format(html.escape(self.prod.getDestination()))
         except LookupError as e:
             log.debug(repr(e))
 
         try:
-            item['content'] += '<p><b>Waga:</b> {}</p>\n'.format(self.prod.getWeight())
+            item['content'] += '<p><b>Waga:</b> {}</p>\n'.format(html.escape(self.prod.getWeight()))
         except LookupError as e:
             log.debug(repr(e))
 
         try:
-            item['content'] += '<p><b>Objętość:</b> {}</p>\n'.format(self.prod.getVolumeSize())
+            item['content'] += '<p><b>Objętość:</b> {}</p>\n'.format(html.escape(self.prod.getVolumeSize()))
         except LookupError as e:
             log.debug(repr(e))
 
@@ -390,7 +390,7 @@ class LuckyStarProductIntegrator:
 
         # ==================================== SECTION 3 ===========================================
         section3 = {
-                "items": [],
+            "items": [],
         }
 
         # ====== ITEM 1 ======
@@ -398,7 +398,7 @@ class LuckyStarProductIntegrator:
 
         try:
             item['content'] = '<p><b>Informacje ogólne:</b></p>\n' \
-                              '<p>{}</p>\n'.format(self.prod.getOverallInfo())
+                              '<p>{}</p>\n'.format(html.escape(self.prod.getOverallInfo()))
             item['type'] = 'TEXT'
         except LookupError as e:
             log.debug(repr(e))
@@ -429,9 +429,12 @@ class LuckyStarProductIntegrator:
 
             try:
                 additionalDescName, additionalDescVal = additionalDescriptions.pop()
+
+                additionalDescName = html.escape(additionalDescName)
                 additionalDescVal = html.escape(additionalDescVal)
+
                 item['content'] = '<p><b>{}:</b></p>\n' \
-                                    '<p>{}</p>\n'.format(additionalDescName, additionalDescVal)
+                                  '<p>{}</p>\n'.format(additionalDescName, additionalDescVal)
                 item['type'] = 'TEXT'
             except IndexError:
                 log.debug('Can\'t make text item in sectionN!')
@@ -485,7 +488,7 @@ class LuckyStarProductIntegrator:
         item = dict()
 
         try:
-            item['content'] = '<p><b>Pasuje do:</b>\n{}</p>\n'.format(self.prod.getCompatibleModelsDesc())
+            item['content'] = '<p><b>Pasuje do:</b>\n{}</p>\n'.format(html.escape(self.prod.getCompatibleModelsDesc()))
             item['type'] = 'TEXT'
         except LookupError as e:
             log.debug(repr(e))
