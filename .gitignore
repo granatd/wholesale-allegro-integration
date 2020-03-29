@@ -1,1 +1,4 @@
 allegro.token
+log/
+__pycache__
+sklep.xml
