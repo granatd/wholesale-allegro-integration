@@ -5,8 +5,8 @@ from wholesales.LuckyStar_nowegumy_pl.xmlParser import LuckyStarWholesale
 from marketplaces.allegro.auctions import RestAPI, Auction
 from marketplaces.allegro.integrations.LuckyStarProductIntegrator import LuckyStarProductIntegrator
 
-ERROR_FILE_NAME = 'auction.error'
-LAST_AUCTION_FILE_NAME = 'last_auction.log'
+ERROR_FILE_NAME = 'log/auction.error'
+LAST_AUCTION_FILE_NAME = 'log/last_auction.log'
 MAX_AUCTIONS_TO_SEND = 10
 
 fmt = "[%(levelname)s:%(filename)s:%(lineno)s: %(funcName)s()] %(message)s"

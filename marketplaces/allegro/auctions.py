@@ -9,9 +9,9 @@ from base64 import b64encode, b64decode
 import marketplaces.allegro.fileReader as Fr
 
 MAX_TRIES = 2
-ALLEGRO_TOKEN_FILE = 'allegro.token'
-ALLEGRO_OFFERS_FILE = 'allegro.offers'
-ALLEGRO_OFFERS_STATUS_FILE = 'allegro.offers.status'
+ALLEGRO_TOKEN_FILE = 'log/allegro.token'
+ALLEGRO_OFFERS_FILE = 'log/allegro.offers'
+ALLEGRO_OFFERS_STATUS_FILE = 'log/allegro.offers.status'
 
 fmt = "[%(levelname)s:%(filename)s:%(lineno)s: %(funcName)s()] %(message)s"
 log.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"), format=fmt)
