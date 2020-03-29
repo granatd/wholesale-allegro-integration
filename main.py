@@ -1,6 +1,7 @@
 import os
 import logging as log
 import marketplaces.allegro.fileReader as Fr
+from pprint import pformat
 from wholesales.LuckyStar_nowegumy_pl.xmlParser import LuckyStarWholesale
 from marketplaces.allegro.auctions import RestAPI, Auction
 from marketplaces.allegro.integrations.LuckyStarProductIntegrator import LuckyStarProductIntegrator
@@ -50,7 +51,7 @@ def handleLastErrors():
 
         print('Last successfull auction number: {}\n'
               'Auction:\n'
-              '{}\n'.format(lastAuctionNum, lastAuction))
+              '{}\n'.format(lastAuctionNum, pformat(lastAuction.getTemplate())))
 
     except FileNotFoundError:
         lastAuctionNum = 0
