@@ -52,11 +52,19 @@ class Auction:
         self.num = Auction.nextFreeNum
         self.incrementNextFreeNum()
 
-        self.setEAN(integrator.getEAN())
+        try:
+            self.setEAN(integrator.getEAN())
+        except LookupError as e:
+            log.debug(repr(e))
+
+        try:
+            self.setImgLinks(integrator.getImages())
+        except LookupError as e:
+            log.debug(repr(e))
+
         self.setCategory(integrator.getCategory())
         self.setPrice(integrator.getPrice())
         self.setTitle(integrator.getTitle())
-        self.setImgLinks(integrator.getImages())
         self.setDescription(integrator.getDesc(self.imgLinks))
         self.setStockCount(integrator.getStockCount())
         self.setParams(integrator.getParams(self.getCategoryParams()))

@@ -113,10 +113,8 @@ class LuckyStarProductIntegrator:
         return self.price
 
     def getImages(self):
-        if self.images:
-            return self.images
-
-        self.images = self.prod.getImages()
+        if self.images is None:
+            self.images = self.prod.getImages()
 
         return self.images
 
@@ -267,6 +265,9 @@ class LuckyStarProductIntegrator:
 
         if self.isDescriptionSet():
             return self.description
+
+        if allegroImgLinks is None:
+            allegroImgLinks = list()
 
         # ==================================== SECTION 1 ===========================================
         section1 = self.description['sections'][0]

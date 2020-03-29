@@ -8,7 +8,7 @@ from marketplaces.allegro.integrations.LuckyStarProductIntegrator import LuckySt
 
 ERROR_FILE_NAME = 'log/auction.error'
 LAST_AUCTION_FILE_NAME = 'log/last_auction.log'
-MAX_AUCTIONS_TO_SEND = 10
+MAX_AUCTIONS_TO_SEND = 100
 
 fmt = "[%(levelname)s:%(filename)s:%(lineno)s: %(funcName)s()] %(message)s"
 log.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"), format=fmt)
