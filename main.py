@@ -74,7 +74,6 @@ def handleLastErrors():
 
 
 def main():
-    lastSentAuction = None
     lastAuctionNum = handleLastErrors()
 
     wholesale = createLuckyStarWholesale()
@@ -99,15 +98,11 @@ def main():
             auction.saveOfferToFile()
             auction.publish()
 
-            lastSentAuction = auction
+            saveAuction(auction, i)
 
         except Exception as e:
             saveError(e)
-
-            if lastSentAuction is None:
-                raise e
-
-            saveAuction(lastSentAuction, i)
+            raise
 
     Auction.handleCommandsStatus()
 
