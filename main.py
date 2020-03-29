@@ -74,14 +74,14 @@ def handleLastErrors():
 
 
 def main():
+    RestAPI.deviceFlowOAuth()
+
     lastAuctionNum = handleLastErrors()
 
     wholesale = createLuckyStarWholesale()
 
     for i in range(lastAuctionNum):  # skip already sent products
         wholesale.getProduct()
-
-    RestAPI.deviceFlowOAuth()
 
     for i in range(MAX_AUCTIONS_TO_SEND):
         try:

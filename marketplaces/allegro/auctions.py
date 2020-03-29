@@ -21,7 +21,7 @@ log = log.getLogger(__name__)
 class Auction:
     nextFreeNum = 1
     commandsIds = list()
-    commandsStatus = list()
+    commandsStats = list()
 
     def __init__(self, integrator):
         self.template = {
@@ -74,31 +74,38 @@ class Auction:
 
     @staticmethod
     def getCommandsStatus():
-        Auction.commandsStatus = [
-            {cmdId: Auction.getStatus(cmdId)} for cmdId in Auction.commandsIds
-        ]
-
-    @staticmethod
-    def saveCommandsStatus():
-        commandsStats = Auction.commandsStatus
-
-        log.debug('Getting new commandsStats: {}'.format(commandsStats))
         try:
             log.debug('Searching old stats')
 
-            commandsStats += Fr.readObjFromFile(ALLEGRO_OFFERS_STATUS_FILE)
+            commandsStats = Fr.readObjFromFile(ALLEGRO_OFFERS_STATUS_FILE)
+            commandsIds = [commandStat['id'] for commandStat in commandsStats]
 
-            log.debug('Old stats appended: {}'.format(commandsStats))
+            log.debug('Old stats found!\n'
+                      'Refreshing old stats for commandsIds: {}'.format(commandsIds))
+
+            Auction.commandsStats = [Auction.getStatus(cmdId) for cmdId in commandsIds]
+
         except FileNotFoundError:
             log.debug('Old stats not found!')
 
-        Fr.saveObjToFile(commandsStats, ALLEGRO_OFFERS_STATUS_FILE)
+        log.debug('Appending new commands stats for commandsIds: {}'.format(Auction.commandsIds))
 
-        log.debug('Stats sucessfully saved to file \'{}\''.format(ALLEGRO_OFFERS_STATUS_FILE))
+        Auction.commandsStats += [Auction.getStatus(cmdId) for cmdId in Auction.commandsIds]
+
+        log.debug('All created stats:\n'
+                  '{}'.format(pformat(Auction.commandsStats)))
+
+    @staticmethod
+    def saveCommandsStatus():
+
+        Fr.saveObjToFile(Auction.commandsStats, ALLEGRO_OFFERS_STATUS_FILE)
+
+        log.debug('Stats sucessfully saved to \'{}\' file!'.format(ALLEGRO_OFFERS_STATUS_FILE))
 
     @staticmethod
     def printCommandsStatus():
-        print(pformat(Auction.commandsStatus))
+        print('\nCommandsStats [{}]:\n'
+              '{}\n'.format(len(Auction.commandsStats), pformat(Auction.commandsStats)))
 
     @staticmethod
     def handleCommandsStatus():
