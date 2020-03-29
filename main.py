@@ -99,7 +99,7 @@ def main():
             auction.saveOfferToFile()
             auction.publish()
 
-            saveAuction(auction, i)
+            saveAuction(auction, lastAuctionNum + 1 + i)
 
         except Exception as e:
             saveError(e)
