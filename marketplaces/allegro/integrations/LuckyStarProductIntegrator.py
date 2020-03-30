@@ -113,7 +113,7 @@ class LuckyStarProductIntegrator:
         return self.price
 
     def getImages(self):
-        if self.images is None:
+        if not self.images:
             self.images = self.prod.getImages()
 
         return self.images
