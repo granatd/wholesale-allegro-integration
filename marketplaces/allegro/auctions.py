@@ -86,7 +86,9 @@ class Auction:
             log.debug('Searching old stats')
 
             commandsStats = Fr.readObjFromFile(ALLEGRO_OFFERS_STATUS_FILE)
-            commandsIds = [commandStat['id'] for commandStat in commandsStats]
+            commandsIds = [
+                commandStat['id'] for commandStat in commandsStats if commandStat['taskCount']['success'] == 0
+            ]
 
             log.debug('Old stats found!\n'
                       'Refreshing old stats for commandsIds: {}'.format(commandsIds))
