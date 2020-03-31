@@ -5,6 +5,7 @@ import logging as log
 import xml.etree.ElementTree as eT
 
 MIN_STOCK_COUNT = 10
+MIN_PRICE_ZL = 100
 
 ns = {'ng': 'http://nowegumy.pl'}
 
