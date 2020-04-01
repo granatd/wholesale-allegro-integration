@@ -81,14 +81,12 @@ class Auction:
         return RestAPI.getOfferStatus(cmdId)
 
     @staticmethod
-    def getCommandsStatus():
+    def getCommandsStats():
         try:
-            log.debug('Searching old stats')
+            log.debug('Searching old stats...')
 
             commandsStats = Fr.readObjFromFile(ALLEGRO_OFFERS_STATUS_FILE)
-            commandsIds = [
-                commandStat['id'] for commandStat in commandsStats if commandStat['taskCount']['success'] == 0
-            ]
+            commandsIds = [commandStat['id'] for commandStat in commandsStats]
 
             log.debug('Old stats found!\n'
                       'Refreshing old stats for commandsIds: {}'.format(commandsIds))
@@ -98,33 +96,47 @@ class Auction:
         except FileNotFoundError:
             log.debug('Old stats not found!')
 
-        log.debug('Appending new commands stats for commandsIds: {}'.format(Auction.commandsIds))
+        if Auction.commandsIds:
+            log.debug('Appending new commands stats for commandsIds: {}'.format(Auction.commandsIds))
 
-        Auction.commandsStats += [Auction.getStatus(cmdId) for cmdId in Auction.commandsIds]
+            Auction.commandsStats += [Auction.getStatus(cmdId) for cmdId in Auction.commandsIds]
 
-        log.debug('All created stats:\n'
-                  '{}'.format(pformat(Auction.commandsStats)))
-
-    @staticmethod
-    def saveCommandsStatus():
-
-        Fr.saveObjToFile(Auction.commandsStats, ALLEGRO_OFFERS_STATUS_FILE)
-
-        log.debug('Stats sucessfully saved to \'{}\' file!'.format(ALLEGRO_OFFERS_STATUS_FILE))
+        if Auction.commandsStats:
+            log.debug('All created stats:\n'
+                      '{}'.format(pformat(Auction.commandsStats)))
 
     @staticmethod
-    def printCommandsStatus():
+    def saveNotFinishedCommands():
+
+        notFinishedCmds = [
+            commandStat for commandStat in Auction.commandsStats if commandStat['taskCount']['success'] == 0
+        ]
+
+        if not notFinishedCmds:
+            if os.path.exists(ALLEGRO_OFFERS_STATUS_FILE):
+                os.remove(ALLEGRO_OFFERS_STATUS_FILE)
+            return
+
+        Fr.saveObjToFile(notFinishedCmds, ALLEGRO_OFFERS_STATUS_FILE)
+
+        log.debug('Stats successfully saved to \'{}\' file!'.format(ALLEGRO_OFFERS_STATUS_FILE))
+
+    @staticmethod
+    def printCommandsStats():
+        if not Auction.commandsStats:
+            return
+
         print('\nCommandsStats [{}]:\n'
               '{}\n'.format(len(Auction.commandsStats), pformat(Auction.commandsStats)))
 
     @staticmethod
-    def handleCommandsStatus():
-        Auction.getCommandsStatus()
-        Auction.saveCommandsStatus()
-        Auction.printCommandsStatus()
+    def handleCommandsStats():
+        Auction.getCommandsStats()
+        Auction.saveNotFinishedCommands()
+        Auction.printCommandsStats()
 
     def incrementNextFreeNum(self):
-            Auction.nextFreeNum += 1
+        Auction.nextFreeNum += 1
 
     def setTitle(self, name):
         self.template['name'] = name
@@ -391,6 +403,6 @@ class RestAPI:
         template['offerCriteria'][0]['offers'][0]['id'] = draftId
 
         RestAPI._rest('PUT', 'https://api.allegro.pl/sale/offer-publication-commands/{}'.format(commandId),
-                             json=template, bearer=True)
+                      json=template, bearer=True)
 
         return commandId

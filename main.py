@@ -24,8 +24,8 @@ def createLuckyStarWholesale():
     return wholesale
 
 
-def saveError(e):
-    return Fr.saveObjToFile(e, ERROR_FILE_NAME)
+def saveError(e, auctionNum, prodName):
+    return Fr.saveObjToFile((prodName, e), ERROR_FILE_NAME + '.' + str(auctionNum))
 
 
 def saveAuction(auction, num):
@@ -59,11 +59,14 @@ def handleLastErrors():
     Auction.setNextFreeNum(lastAuctionNum + 1)
 
     try:
-        e = Fr.readObjFromFile(ERROR_FILE_NAME)
+        prodName, e = Fr.readObjFromFile(ERROR_FILE_NAME)
 
-        print('Found previous error log:\n' + str(e))
+        print('Found previous error log for \'{}\' product:\n'.format(prodName)
+              + str(e) + '\n\n'
+              + 'To run programme, please fix this error and remove \'{}\' file!\n'
+              .format(ERROR_FILE_NAME))
 
-        raise EnvironmentError('\nTo run programme, please fix this error and remove \'{}\' file!'
+        raise EnvironmentError('\nFIX ERRORS AND REMOVE \'{}\' FILE FIRST!'
                                .format(ERROR_FILE_NAME))
 
     except FileNotFoundError:
@@ -74,6 +77,7 @@ def handleLastErrors():
 
 
 def main():
+
     RestAPI.deviceFlowOAuth()
 
     lastAuctionNum = handleLastErrors()
@@ -87,7 +91,7 @@ def main():
         try:
             prod = wholesale.getProduct()
             integrator = LuckyStarProductIntegrator(prod)
-        except IndexError as e:
+        except IndexError:
             log.debug('No products left in a wholesale!')
             wholesale.toFirstProduct()
             break
@@ -102,15 +106,18 @@ def main():
             saveAuction(auction, lastAuctionNum + 1 + i)
 
         except Exception as e:
-            saveError(e)
-            raise
+            saveError(e, lastAuctionNum + 1 + i, integrator.getTitle())
 
-    Auction.handleCommandsStatus()
+    Auction.handleCommandsStats()
 
 
 if __name__ == '__main__':
     try:
         main()
-    except Exception:
-        Auction.handleCommandsStatus()
-        raise
+    except Exception as ex:
+        Auction.handleCommandsStats()
+
+        if not isinstance(ex, EnvironmentError):
+            raise
+
+        print(str(ex))
