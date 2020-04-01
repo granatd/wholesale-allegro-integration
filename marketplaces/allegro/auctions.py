@@ -327,6 +327,31 @@ class RestAPI:
                              bearer=True)
 
     @staticmethod
+    def getSubcategoriesList(subcategories=None, parent=None):
+
+        if parent is None and subcategories is None:
+            return RestAPI._rest('GET', 'https://api.allegro.pl/sale/categories', bearer=True)
+
+        if subcategories is None or parent is None:
+            raise ValueError('Wrong params!')
+
+        if not subcategories:
+            return [parent]
+
+        currName = subcategories[0]
+        subcategories = subcategories[1:]
+
+        for category in parent['categories']:
+            if re.search(currName, category['name'], re.IGNORECASE) or \
+                    re.search(category['name'], currName, re.IGNORECASE):
+
+                parent = RestAPI._rest('GET', 'https://api.allegro.pl/sale/categories?parent.id={}'
+                                       .format(category['id']), bearer=True)
+                categories = RestAPI.getSubcategoriesList(subcategories, parent)
+                categories.insert(0, parent)
+                return categories
+
+    @staticmethod
     def getOffers(sellerID, phrase, limit=5):
         return RestAPI._rest('GET', 'https://api.allegro.pl/offers/listing?seller.id={}&phrase={}&limit={}'
                              .format(sellerID, phrase, limit), bearer=True)
