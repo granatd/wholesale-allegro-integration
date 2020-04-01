@@ -171,6 +171,8 @@ class LuckyStarProductIntegrator:
                 self.category = {'id': '257692'}
         elif prodType == 'quady':
             self.category = {'id': '257706'}
+        elif prodType == 'motocykle i skutery':
+            self.category = {'id': '301094'}
 
         if self.category is None:
             raise ValueError('Unrecognized category!')
