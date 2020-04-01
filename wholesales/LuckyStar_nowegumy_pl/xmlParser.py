@@ -100,7 +100,7 @@ class LuckyStarProduct:
         return self.product.find('ng:CENA_BRUTTO', ns).text
 
     def getTitle(self):
-        return self.product.find('ng:NAZWA', ns).text[0:49]
+        return self.product.find('ng:NAZWA', ns).text
 
     def getStockCount(self):
         return self.product.find('ng:STAN', ns).text
