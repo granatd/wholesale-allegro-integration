@@ -42,16 +42,16 @@ class LuckyStarWholesale:
         count = state.text
 
         if int(count) < MIN_STOCK_COUNT:
-            return True
+            return False
 
         price = prod.find('ng:CENA_BRUTTO', ns)
-        if price.text is None:
-            return True
+        if price.text is None or float(price.text) < MIN_PRICE_ZL:
+            return False
 
-        return False
+        return True
 
     def filterProducts(self):
-        self.products = [prod for prod in self.products if not self.isFiltered(prod)]
+        self.products = [prod for prod in self.products if self.isFiltered(prod)]
 
     def addOverhead(self, percent):
         """Dodaje narzut procentowy do ceny zakupu"""
