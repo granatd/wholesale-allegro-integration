@@ -4,11 +4,11 @@ import marketplaces.allegro.fileReader as Fr
 from pprint import pformat
 from wholesales.LuckyStar_nowegumy_pl.xmlParser import LuckyStarWholesale
 from marketplaces.allegro.auctions import RestAPI, Auction
-from marketplaces.allegro.integrations.LuckyStarProductIntegrator import LuckyStarProductIntegrator
+from marketplaces.allegro.integrations.LuckyStarProductIntegrator import LuckyStarProductIntegrator, WHEELS_COUNT
 
-ERROR_FILE_NAME = 'log/auction.error'
-LAST_AUCTION_FILE_NAME = 'log/last_auction.log'
 MAX_AUCTIONS_TO_SEND = 2500
+ERROR_FILE_NAME = 'log/{}_wheels/auction.error'.format(WHEELS_COUNT)
+LAST_AUCTION_FILE_NAME = 'log/{}_wheels/last_auction.log'.format(WHEELS_COUNT)
 
 fmt = "[%(levelname)s:%(filename)s:%(lineno)s: %(funcName)s()] %(message)s"
 log.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"), format=fmt)
@@ -77,7 +77,6 @@ def handleLastErrors():
 
 
 def main():
-
     RestAPI.deviceFlowOAuth()
 
     lastAuctionNum = handleLastErrors()

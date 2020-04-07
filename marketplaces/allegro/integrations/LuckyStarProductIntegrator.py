@@ -3,6 +3,8 @@ import re
 import html
 import logging as log
 
+WHEELS_COUNT = 1
+
 fmt = "[%(levelname)s:%(filename)s:%(lineno)s: %(funcName)s()] %(message)s"
 log.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"), format=fmt)
 log = log.getLogger(__name__)
@@ -93,8 +95,12 @@ class LuckyStarProductIntegrator:
         self._descriptionSet = False
 
     def getTitle(self):
+        prefix = ''
+        if WHEELS_COUNT > 1:
+            prefix = str(WHEELS_COUNT) + 'x '
+
         if self.title is None:
-            self.title = self.prod.getTitle()
+            self.title = prefix + self.prod.getTitle()
 
         return self.title[0:45]
 
@@ -108,7 +114,7 @@ class LuckyStarProductIntegrator:
         if self.price is not None:
             return self.price
 
-        price = "{:.2f}".format(float(self.prod.getPrice()))
+        price = "{:.2f}".format(float(self.prod.getPrice()) * WHEELS_COUNT)
         self.price = {'amount': price, 'currency': 'PLN'}
 
         return self.price
@@ -123,8 +129,9 @@ class LuckyStarProductIntegrator:
         if self.stockCount is not None:
             return self.stockCount
 
-        stockCount = self.prod.getStockCount()
-        self.stockCount = {'available': int(stockCount), 'unit': 'UNIT'}
+        stockCount = int(self.prod.getStockCount())/WHEELS_COUNT
+
+        self.stockCount = {'available': stockCount, 'unit': 'UNIT'}
 
         return self.stockCount
 
@@ -181,14 +188,29 @@ class LuckyStarProductIntegrator:
         return self.category
 
     def isFirstListParam(self):
-        return self.availParam['name'].lower() == 'stan' or \
-            self.availParam['name'].lower() == 'liczba opon w ofercie'
+        return self.availParam['name'].lower() == 'stan'
 
     def appendFirstListParam(self, params):
         params.append({
             'id': self.availParam['id'],
             'valuesIds': [
                 self.availParam['dictionary'][0]['id'],
+            ],
+            'values': [],
+            'rangeValue': None
+        })
+
+    def isWheelsCountParam(self):
+        return self.availParam['name'].lower() == 'liczba opon w ofercie'
+
+    def appendWheelsParam(self, params):
+        wheels = WHEELS_COUNT
+        assert(wheels > 0)
+
+        params.append({
+            'id': self.availParam['id'],
+            'valuesIds': [
+                self.availParam['dictionary'][wheels - 1]['id'],
             ],
             'values': [],
             'rangeValue': None
@@ -215,7 +237,10 @@ class LuckyStarProductIntegrator:
         return False
 
     def appendParam(self, params):
-        val = self.prod.getDescValue(self.allegro2ngMap[self.availParam['name']])
+        if self.isWheelsCountParam():
+            val = str(WHEELS_COUNT)
+        else:
+            val = self.prod.getDescValue(self.allegro2ngMap[self.availParam['name']])
 
         if self.availParam['type'].lower() == 'dictionary':
             valueIds = list()

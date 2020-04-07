@@ -7,11 +7,13 @@ import logging as log
 from pprint import pformat
 from base64 import b64encode, b64decode
 import marketplaces.allegro.fileReader as Fr
+from marketplaces.allegro.integrations.LuckyStarProductIntegrator import WHEELS_COUNT
 
 MAX_TRIES = 2
-ALLEGRO_TOKEN_FILE = 'log/allegro.token'
-ALLEGRO_OFFERS_FILE = 'log/allegro.offers'
-ALLEGRO_OFFERS_STATUS_FILE = 'log/allegro.offers.status'
+
+ALLEGRO_TOKEN_FILE = 'allegro.token'
+ALLEGRO_OFFERS_FILE = 'log/{}_wheels/allegro.offers'.format(WHEELS_COUNT)
+ALLEGRO_OFFERS_STATUS_FILE = 'log/{}_wheels/allegro.offers.status'.format(WHEELS_COUNT)
 
 fmt = "[%(levelname)s:%(filename)s:%(lineno)s: %(funcName)s()] %(message)s"
 log.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"), format=fmt)
