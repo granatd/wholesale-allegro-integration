@@ -38,12 +38,12 @@ class Auction:
                 'returnPolicy': {'id': 'f7b5005b-4b46-45d7-bab8-e17208729f2c'},
                 'warranty': {'id': '593b3ed0-655c-40e6-acbc-7782351cca75'}},
             'delivery': {
-                'handlingTime': 'PT24H',
+                'handlingTime': 'P2D',
                 'shippingRates': {'id': 'a5805e2a-3613-406f-a91f-c924f944fa0b'}},
-            'stock': {'available': '2', 'unit': 'UNIT'},
-            'category': {'id': '257698'},
+            'stock': {'available': None, 'unit': 'UNIT'},
+            'category': {'id': None},
             'sellingMode': {'format': 'BUY_NOW',
-                            'price': {'amount': '609', 'currency': 'PLN'},
+                            'price': {'amount': None, 'currency': 'PLN'},
                             }
         }
 
