@@ -3,7 +3,7 @@ import re
 import html
 import logging as log
 
-WHEELS_COUNT = 4
+WHEELS_COUNT = '1_set'
 
 fmt = "[%(levelname)s:%(filename)s:%(lineno)s: %(funcName)s()] %(message)s"
 log.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"), format=fmt)
@@ -93,9 +93,15 @@ class LuckyStarProductIntegrator:
         self.images = list()
         self.availParam = None
         self._descriptionSet = False
+        self.wheelsCount = None
+        self.setWheelsCount()
 
-    def getTitle(self):
-        prefix = ''
+    def setWheelsCount(self):
+        self.wheelsCount = WHEELS_COUNT
+
+        if not str(WHEELS_COUNT) == '1_set':
+            return
+
         cat = {'id': ''}
 
         try:
@@ -103,8 +109,17 @@ class LuckyStarProductIntegrator:
         except (ValueError, LookupError):
             pass
 
-        if WHEELS_COUNT > 1 and not cat['id'] == '301094':  # motorbikes
-            prefix = str(WHEELS_COUNT) + 'x '
+        if cat['id'] == '301094':  # motorbikes' single tire
+            self.wheelsCount = 2
+            cat['id'] = '301106'  # change category to motorbikes' tires sets
+        else:
+            self.wheelsCount = 4
+
+    def getTitle(self):
+        prefix = ''
+
+        if self.wheelsCount > 1:
+            prefix = str(self.wheelsCount) + 'x '
 
         if self.title is None:
             self.title = prefix + self.prod.getTitle()
@@ -121,7 +136,7 @@ class LuckyStarProductIntegrator:
         if self.price is not None:
             return self.price
 
-        price = "{:.2f}".format(float(self.prod.getPrice()) * WHEELS_COUNT)
+        price = "{:.2f}".format(float(self.prod.getPrice()) * self.wheelsCount)
         self.price = {'amount': price, 'currency': 'PLN'}
 
         return self.price
@@ -136,7 +151,7 @@ class LuckyStarProductIntegrator:
         if self.stockCount is not None:
             return self.stockCount
 
-        stockCount = int(self.prod.getStockCount())/WHEELS_COUNT
+        stockCount = int(self.prod.getStockCount())/self.wheelsCount
 
         self.stockCount = {'available': stockCount, 'unit': 'UNIT'}
 
@@ -211,7 +226,7 @@ class LuckyStarProductIntegrator:
         return self.availParam['name'].lower() == 'liczba opon w ofercie'
 
     def appendWheelsParam(self, params):
-        wheels = WHEELS_COUNT
+        wheels = self.wheelsCount
         assert(wheels > 0)
 
         params.append({
@@ -245,7 +260,7 @@ class LuckyStarProductIntegrator:
 
     def appendParam(self, params):
         if self.isWheelsCountParam():
-            val = str(WHEELS_COUNT)
+            val = str(self.wheelsCount)
         else:
             val = self.prod.getDescValue(self.allegro2ngMap[self.availParam['name']])
 
