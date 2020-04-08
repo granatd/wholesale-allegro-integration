@@ -19,6 +19,9 @@ fmt = "[%(levelname)s:%(filename)s:%(lineno)s: %(funcName)s()] %(message)s"
 log.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"), format=fmt)
 log = log.getLogger(__name__)
 
+freeDelivery = {'id': 'cde2d24a-ab38-461d-96da-ade36d99e7cf'}
+standardDelivery = {'id': 'a5805e2a-3613-406f-a91f-c924f944fa0b'}
+
 
 class Auction:
     nextFreeNum = 1
@@ -39,7 +42,7 @@ class Auction:
                 'warranty': {'id': '593b3ed0-655c-40e6-acbc-7782351cca75'}},
             'delivery': {
                 'handlingTime': 'P2D',
-                'shippingRates': {'id': 'a5805e2a-3613-406f-a91f-c924f944fa0b'}},
+                'shippingRates': standardDelivery},
             'stock': {'available': None, 'unit': 'UNIT'},
             'category': {'id': None},
             'sellingMode': {'format': 'BUY_NOW',
@@ -67,6 +70,7 @@ class Auction:
         self.setCategory(integrator.getCategory())
         self.setPrice(integrator.getPrice())
         self.setTitle(integrator.getTitle())
+        self.setDeliveryShippingRates()
         self.setDescription(integrator.getDesc(self.imgLinks))
         self.setStockCount(integrator.getStockCount())
         self.setParams(integrator.getParams(self.getCategoryParams()))
@@ -181,6 +185,10 @@ class Auction:
 
     def getCategoryParams(self):
         return self.restMod.getCategoryParams(self.integrator.getCategory()['id'])
+
+    def setDeliveryShippingRates(self):
+        if WHEELS_COUNT == 4:
+            self.template['delivery']['shippingRates'] = freeDelivery
 
 
 class RestAPI:

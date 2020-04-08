@@ -3,7 +3,7 @@ import re
 import html
 import logging as log
 
-WHEELS_COUNT = 1
+WHEELS_COUNT = 4
 
 fmt = "[%(levelname)s:%(filename)s:%(lineno)s: %(funcName)s()] %(message)s"
 log.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"), format=fmt)
@@ -96,7 +96,14 @@ class LuckyStarProductIntegrator:
 
     def getTitle(self):
         prefix = ''
-        if WHEELS_COUNT > 1:
+        cat = {'id': ''}
+
+        try:
+            cat = self.getCategory()
+        except (ValueError, LookupError):
+            pass
+
+        if WHEELS_COUNT > 1 and not cat['id'] == '301094':  # motorbikes
             prefix = str(WHEELS_COUNT) + 'x '
 
         if self.title is None:
