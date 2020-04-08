@@ -275,9 +275,21 @@ class RestAPI:
     def _getSellerID():
         """Decode sellerID from access token"""
 
-        b64_string = RestAPI.tokenObj['access_token'] + "=" * (
-                (4 - len(RestAPI.tokenObj['access_token']) % 4) % 4 + 1)  # adds proper padding to base64 string
-        matchObj = re.search(b'\"user_name\":\"([0-9]+)\"', b64decode(b64_string), re.IGNORECASE)
+        def decode_base64(data, altchars=b'+/'):
+            """Decode base64, padding being optional.
+
+            :param data: Base64 data as an ASCII byte string
+            :returns: The decoded byte string.
+
+            """
+            data = re.sub(rb'[^a-zA-Z0-9%s]+' % altchars, b'', data)  # normalize
+            missing_padding = len(data) % 4
+            if missing_padding:
+                data += b'=' * (4 - missing_padding)
+            return b64decode(data, altchars)
+
+        b64_string = RestAPI.tokenObj['access_token'].encode()
+        matchObj = re.search(b'\"user_name\":\"([0-9]+)\"', decode_base64(b64_string), re.IGNORECASE)
         sellerID = matchObj.group(1).decode("UTF-8")
         log.debug(sellerID)
 
@@ -331,6 +343,7 @@ class RestAPI:
 
     @staticmethod
     def getShippingRates():
+        RestAPI.deviceFlowOAuth()
         return RestAPI._rest('GET', 'https://api.allegro.pl/sale/shipping-rates?seller.id='
                              + RestAPI._getSellerID(), bearer=True)
 
