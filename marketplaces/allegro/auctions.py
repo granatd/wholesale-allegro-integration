@@ -222,6 +222,9 @@ class RestAPI:
                 https://allegro.pl/auth/oauth/token?grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Adevice_code&'''
         contentType = 'application/x-www-form-urlencoded'
 
+        if RestAPI.tokenObj is not None:
+            return
+
         try:
             RestAPI.tokenObj = RestAPI.readToken()
             return
