@@ -1,5 +1,6 @@
 import os
 import logging as log
+import traceback
 import marketplaces.allegro.fileReader as Fr
 from pprint import pformat
 from wholesales.LuckyStar_nowegumy_pl.xmlParser import LuckyStarWholesale
@@ -24,8 +25,8 @@ def createLuckyStarWholesale():
     return wholesale
 
 
-def saveError(e, auctionNum, prodName):
-    return Fr.saveObjToFile((prodName, e), ERROR_FILE_NAME + '.' + str(auctionNum))
+def saveError(auctionNum, prodName):
+    return Fr.saveObjToFile((prodName, traceback.format_exc()), ERROR_FILE_NAME + '.' + str(auctionNum))
 
 
 def saveAuction(auction, num):
@@ -59,10 +60,10 @@ def handleLastErrors():
     Auction.setNextFreeNum(lastAuctionNum + 1)
 
     try:
-        prodName, e = Fr.readObjFromFile(ERROR_FILE_NAME)
+        prodName, tb = Fr.readObjFromFile(ERROR_FILE_NAME)
 
-        print('Found previous error log for \'{}\' product:\n'.format(prodName)
-              + str(e) + '\n\n'
+        print('Found previous error log for \'{}\' product:\n\n'.format(prodName)
+              + tb + '\n'
               + 'To run programme, please fix this error and remove \'{}\' file!\n'
               .format(ERROR_FILE_NAME))
 
@@ -104,8 +105,8 @@ def main():
 
             saveAuction(auction, lastAuctionNum + 1 + i)
 
-        except Exception as e:
-            saveError(e, lastAuctionNum + 1 + i, integrator.getTitle())
+        except Exception:
+            saveError(lastAuctionNum + 1 + i, integrator.getTitle())
 
     Auction.handleCommandsStats()
 
