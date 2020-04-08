@@ -329,19 +329,14 @@ class RestAPI:
                              bearer=True)
 
     @staticmethod
-    def getSubcategoriesList(subcategories=None, parent=None):
+    def _getCategoriesPathDetails(path, parent):
+        assert(path is not None and parent is not None)
 
-        if parent is None and subcategories is None:
-            return RestAPI._rest('GET', 'https://api.allegro.pl/sale/categories', bearer=True)
-
-        if subcategories is None or parent is None:
-            raise ValueError('Wrong params!')
-
-        if not subcategories:
+        if not path:
             return [parent]
 
-        currName = subcategories[0]
-        subcategories = subcategories[1:]
+        currName = path[0]
+        subcategories = path[1:]
 
         for category in parent['categories']:
             if re.search(currName, category['name'], re.IGNORECASE) or \
@@ -349,9 +344,32 @@ class RestAPI:
 
                 parent = RestAPI._rest('GET', 'https://api.allegro.pl/sale/categories?parent.id={}'
                                        .format(category['id']), bearer=True)
-                categories = RestAPI.getSubcategoriesList(subcategories, parent)
+                categories = RestAPI._getCategoriesPathDetails(subcategories, parent)
                 categories.insert(0, parent)
                 return categories
+
+    @staticmethod
+    def getRootCategory():
+        return RestAPI._rest('GET', 'https://api.allegro.pl/sale/categories', bearer=True)
+
+    @staticmethod
+    def getCategoriesPathDetails(path=None):
+        RestAPI.deviceFlowOAuth()
+
+        root = RestAPI.getRootCategory()
+
+        if path is None:
+            return [root]
+
+        return RestAPI._getCategoriesPathDetails(path, root)
+
+    @staticmethod
+    def printCategoriesPathDetails(path=None):
+        details = RestAPI.getCategoriesPathDetails(path)
+
+        for cat in details:
+            print(pformat(cat))
+            print('----------------------------------------------------------------------')
 
     @staticmethod
     def getOffers(sellerID, phrase, limit=5):
