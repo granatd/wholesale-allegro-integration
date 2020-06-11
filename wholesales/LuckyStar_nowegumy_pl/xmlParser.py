@@ -4,8 +4,8 @@ import requests
 import logging as log
 import xml.etree.ElementTree as eT
 
-MIN_STOCK_COUNT = 10
-MIN_PRICE_ZL = 100
+MIN_STOCK_COUNT = 1
+MIN_PRICE_ZL = 10
 
 ns = {'ng': 'http://nowegumy.pl'}
 
@@ -54,7 +54,7 @@ class LuckyStarWholesale:
         self.products = [prod for prod in self.products if self.isFiltered(prod)]
 
     def addOverhead(self, percent):
-        """Dodaje narzut procentowy do ceny zakupu"""
+        """Dodaje narzut procentowy do sugerowanej ceny sprzedaży"""
 
         products = self.products
 

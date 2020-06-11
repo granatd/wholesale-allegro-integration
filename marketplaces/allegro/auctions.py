@@ -4,13 +4,15 @@ import uuid
 import time
 import requests
 import logging as log
+import marketplaces.allegro.fileReader as Fr
+
 from pprint import pformat
 from base64 import b64encode, b64decode
-import marketplaces.allegro.fileReader as Fr
 from marketplaces.allegro.integrations.LuckyStarProductIntegrator import WHEELS_COUNT
 
 MAX_TRIES = 2
 
+ALLEGRO_MAX_TITLE_LENGTH = 50
 ALLEGRO_TOKEN_FILE = 'allegro.token'
 ALLEGRO_OFFERS_FILE = 'log/{}_wheels/allegro.offers'.format(WHEELS_COUNT)
 ALLEGRO_OFFERS_STATUS_FILE = 'log/{}_wheels/allegro.offers.status'.format(WHEELS_COUNT)
@@ -145,7 +147,7 @@ class Auction:
         Auction.nextFreeNum += 1
 
     def setTitle(self, name):
-        self.template['name'] = name
+        self.template['name'] = name[0:ALLEGRO_MAX_TITLE_LENGTH - 1]
 
     def setEAN(self, ean):
         self.template['ean'] = ean
@@ -354,7 +356,7 @@ class RestAPI:
 
     @staticmethod
     def _getCategoriesPathDetails(path, parent):
-        assert(path is not None and parent is not None)
+        assert (path is not None and parent is not None)
 
         if not path:
             return [parent]
@@ -365,7 +367,6 @@ class RestAPI:
         for category in parent['categories']:
             if re.search(currName, category['name'], re.IGNORECASE) or \
                     re.search(category['name'], currName, re.IGNORECASE):
-
                 parent = RestAPI._rest('GET', 'https://api.allegro.pl/sale/categories?parent.id={}'
                                        .format(category['id']), bearer=True)
                 categories = RestAPI._getCategoriesPathDetails(subcategories, parent)

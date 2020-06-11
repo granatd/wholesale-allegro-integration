@@ -124,7 +124,7 @@ class LuckyStarProductIntegrator:
         if self.title is None:
             self.title = prefix + self.prod.getTitle()
 
-        return self.title[0:45]
+        return self.title
 
     def getEAN(self):
         if self.EAN is None:

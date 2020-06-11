@@ -4,10 +4,12 @@ import traceback
 import marketplaces.allegro.fileReader as Fr
 from pprint import pformat
 from wholesales.LuckyStar_nowegumy_pl.xmlParser import LuckyStarWholesale
-from marketplaces.allegro.auctions import RestAPI, Auction
+from marketplaces.allegro.allegro import Allegro
 from marketplaces.allegro.integrations.LuckyStarProductIntegrator import LuckyStarProductIntegrator, WHEELS_COUNT
 
-MAX_AUCTIONS_TO_SEND = 2500
+PRICE_OVERHEAD = -8  # percents
+MAX_AUCTIONS_TO_SEND = 1
+
 ERROR_FILE_NAME = 'log/{}_wheels/auction.error'.format(WHEELS_COUNT)
 LAST_AUCTION_FILE_NAME = 'log/{}_wheels/last_auction.log'.format(WHEELS_COUNT)
 
@@ -20,7 +22,7 @@ def createLuckyStarWholesale():
     wholesale = LuckyStarWholesale()
 
     wholesale.filterProducts()
-    wholesale.addOverhead(-8)
+    wholesale.addOverhead(PRICE_OVERHEAD)
 
     return wholesale
 
@@ -57,7 +59,7 @@ def handleLastErrors():
     except FileNotFoundError:
         lastAuctionNum = 0
 
-    Auction.setNextFreeNum(lastAuctionNum + 1)
+    Allegro.auction.setNextFreeNum(lastAuctionNum + 1)
 
     try:
         prodName, tb = Fr.readObjFromFile(ERROR_FILE_NAME)
@@ -78,13 +80,13 @@ def handleLastErrors():
 
 
 def main():
-    RestAPI.deviceFlowOAuth()
+    Allegro.restAPI.deviceFlowOAuth()
 
     lastAuctionNum = handleLastErrors()
 
     wholesale = createLuckyStarWholesale()
 
-    for i in range(lastAuctionNum):  # skip already sent products
+    for i in range(lastAuctionNum):  # skip products with already published auctions
         wholesale.getProduct()
 
     for i in range(MAX_AUCTIONS_TO_SEND):
@@ -97,25 +99,26 @@ def main():
             break
 
         try:
-            auction = Auction(integrator)
+            allegro = Allegro()
+            allegro.createAuction(integrator)
 
-            auction.push()
-            auction.saveOfferToFile()
-            auction.publish()
+            allegro.auction.push()
+            allegro.auction.saveOfferToFile()
+            allegro.auction.publish()
 
-            saveAuction(auction, lastAuctionNum + 1 + i)
+            saveAuction(allegro.auction, lastAuctionNum + 1 + i)
 
         except Exception:
             saveError(lastAuctionNum + 1 + i, integrator.getTitle())
 
-    Auction.handleCommandsStats()
+    Allegro.auction.handleCommandsStats()
 
 
 if __name__ == '__main__':
     try:
         main()
     except Exception as ex:
-        Auction.handleCommandsStats()
+        Allegro.auction.handleCommandsStats()
 
         if not isinstance(ex, EnvironmentError):
             raise
