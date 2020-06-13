@@ -325,7 +325,7 @@ class RestAPI:
                                    headers=header,
                                    data=data, json=json).prepare()
 
-            log.debug('Prepared to send:')
+            log.debug('Prepared to send[{}]:'.format(i))
             RestAPI.prettyLogRequest(req)
 
             s = requests.Session()
