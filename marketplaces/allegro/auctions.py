@@ -433,6 +433,7 @@ class RestAPI:
 
     @staticmethod
     def getOfferDetails(offerID):
+        RestAPI.deviceFlowOAuth()
         return RestAPI._rest('GET', 'https://api.allegro.pl/sale/offers/{}'.format(offerID), bearer=True)
 
     @staticmethod
