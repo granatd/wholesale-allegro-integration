@@ -9,7 +9,7 @@ from marketplaces.allegro.allegro import Allegro
 from marketplaces.allegro.integrations.LuckyStarProductIntegrator import LuckyStarProductIntegrator, WHEELS_COUNT
 
 PRICE_OVERHEAD = -8  # percents
-MAX_AUCTIONS_TO_SEND = 1
+MAX_AUCTIONS_TO_SEND = 1000
 
 ERROR_FILE_NAME = 'log/{}_wheels/auction.error'.format(WHEELS_COUNT)
 LAST_AUCTION_FILE_NAME = 'log/{}_wheels/last_auction.log'.format(WHEELS_COUNT)
@@ -85,7 +85,8 @@ def handleLastErrors():
 
 
 def main():
-    Allegro.restAPI.deviceFlowOAuth()
+    allegro = Allegro()
+    allegro.restAPI.deviceFlowOAuth()
 
     lastAuctionNum = handleLastErrors()
 
@@ -104,7 +105,13 @@ def main():
             break
 
         try:
-            allegro = Allegro()
+            name = integrator.getTitle()
+            cat = integrator.getCategory()['id']
+            if allegro.isDuplicatedOffer(name, cat):
+                log.debug('Skipping duplicated offer[{}]:\n'.format(lastAuctionNum + 1 + i) +
+                          pformat(allegro.auction))
+                continue
+
             allegro.createAuction(integrator)
 
             allegro.auction.push()
