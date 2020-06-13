@@ -1,4 +1,5 @@
 import os
+import pathlib
 import logging as log
 import traceback
 import marketplaces.allegro.fileReader as Fr
@@ -28,6 +29,9 @@ def createLuckyStarWholesale():
 
 
 def saveError(auctionNum, prodName):
+    if not os.path.isdir(os.path.dirname(ERROR_FILE_NAME)):
+        pathlib.Path(os.path.dirname(ERROR_FILE_NAME)).mkdir(parents=True, exist_ok=True)
+
     return Fr.saveObjToFile((prodName, traceback.format_exc()), ERROR_FILE_NAME + '.' + str(auctionNum))
 
 
@@ -62,15 +66,16 @@ def handleLastErrors():
     Allegro.auction.setNextFreeNum(lastAuctionNum + 1)
 
     try:
-        prodName, tb = Fr.readObjFromFile(ERROR_FILE_NAME)
+        errFilename = ERROR_FILE_NAME
+        prodName, tb = Fr.readObjFromFile(errFilename)
 
-        print('Found previous error log for \'{}\' product:\n\n'.format(prodName)
+        print('Found error log for \'{}\' product:\n\n'.format(prodName)
               + tb + '\n'
               + 'To run programme, please fix this error and remove \'{}\' file!\n'
-              .format(ERROR_FILE_NAME))
+              .format(errFilename))
 
         raise EnvironmentError('\nFIX ERRORS AND REMOVE \'{}\' FILE FIRST!'
-                               .format(ERROR_FILE_NAME))
+                               .format(errFilename))
 
     except FileNotFoundError:
         print('No previous errors found!\n'
