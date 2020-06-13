@@ -3,7 +3,7 @@ import re
 import html
 import logging as log
 
-WHEELS_COUNT = '1_set'
+WHEELS_COUNT = 1
 
 fmt = "[%(levelname)s:%(filename)s:%(lineno)s: %(funcName)s()] %(message)s"
 log.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"), format=fmt)

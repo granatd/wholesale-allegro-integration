@@ -10,7 +10,7 @@ from pprint import pformat
 from base64 import b64encode, b64decode
 from marketplaces.allegro.integrations.LuckyStarProductIntegrator import WHEELS_COUNT
 
-MAX_TRIES = 2
+MAX_TRIES = 1
 
 ALLEGRO_MAX_TITLE_LENGTH = 50
 ALLEGRO_TOKEN_FILE = 'allegro.token'
