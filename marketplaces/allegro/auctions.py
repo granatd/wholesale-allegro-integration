@@ -21,8 +21,11 @@ fmt = "[%(levelname)s:%(filename)s:%(lineno)s: %(funcName)s()] %(message)s"
 log.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"), format=fmt)
 log = log.getLogger(__name__)
 
-freeDelivery = {'id': 'cde2d24a-ab38-461d-96da-ade36d99e7cf'}
-standardDelivery = {'id': 'a5805e2a-3613-406f-a91f-c924f944fa0b'}
+# freeDelivery = {'id': 'cde2d24a-ab38-461d-96da-ade36d99e7cf'}   # Bimbam_bom
+# standardDelivery = {'id': 'a5805e2a-3613-406f-a91f-c924f944fa0b'}   # Bimbam_bom
+
+freeDelivery = {'id': '7ea0d982-bb98-4792-a486-4b331e4da214'}   # motobuda
+standardDelivery = {'id': 'd7484b99-c65e-4af2-b51b-5fb20b8d9d37'}   # motobuda
 
 
 class Auction:
@@ -38,10 +41,14 @@ class Auction:
                          'postCode': '90-619',
                          'province': 'LODZKIE'},
             'payments': {'invoice': 'VAT'},
-            'afterSalesServices': {
-                'impliedWarranty': {'id': '95b451bf-7fd6-4d46-9bc1-ac6516eeb065'},
-                'returnPolicy': {'id': 'f7b5005b-4b46-45d7-bab8-e17208729f2c'},
-                'warranty': {'id': '593b3ed0-655c-40e6-acbc-7782351cca75'}},
+            # 'afterSalesServices': {  # Bimbam_bom
+            #     'impliedWarranty': {'id': '95b451bf-7fd6-4d46-9bc1-ac6516eeb065'},
+            #     'returnPolicy': {'id': 'f7b5005b-4b46-45d7-bab8-e17208729f2c'},
+            #     'warranty': {'id': '593b3ed0-655c-40e6-acbc-7782351cca75'}},
+            'afterSalesServices': {  # motobuda
+                'impliedWarranty': {'id': 'ec196aac-bdfd-4b6c-aa01-4fc7e52f4b4b'},
+                'returnPolicy': {'id': '98a4d8cb-fcdb-4ab1-bbb2-310704438d1d'},
+                'warranty': {'id': '7cf36e01-e820-450c-a90d-d05b7dbad169'}},
             'delivery': {
                 'handlingTime': 'P2D',
                 'shippingRates': standardDelivery},
@@ -223,8 +230,10 @@ class RestAPI:
 
     @staticmethod
     def deviceFlowOAuth():
-        clientID = '129bf27db850446a9104a88bbfa02c41'
-        clientSecret = 'jU0lMTUOF6v29thseEVib1drsBNmngrHUhR5l0mAPsOpTNqLQBbZ9MlfUMsQ0pTB'
+        # clientID = '129bf27db850446a9104a88bbfa02c41'  # Bimbam_bom
+        # clientSecret = 'jU0lMTUOF6v29thseEVib1drsBNmngrHUhR5l0mAPsOpTNqLQBbZ9MlfUMsQ0pTB'  # Bimbam_bom
+        clientID = 'b10789a57dec4bd8b3fed6cc9d83d6e2'  # motobuda
+        clientSecret = 'hZTspOlTso6xKOuul1ghUS8FpgIkz3ZmxErw8zzIMDNKhjuyjliQuZF2stvgusiE'  # motobuda
         OAuthCode = clientID + ':' + clientSecret
         RestAPI.OAuthCodeEnc = b64encode(OAuthCode.encode()).decode()
         OAuthUri = 'https://allegro.pl/auth/oauth/device'
