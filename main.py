@@ -1,8 +1,10 @@
 import os
+import re
 import pathlib
 import logging as log
 import traceback
 import marketplaces.allegro.fileReader as Fr
+from os import listdir
 from pprint import pformat
 from wholesales.LuckyStar_nowegumy_pl.xmlParser import LuckyStarWholesale
 from marketplaces.allegro.allegro import Allegro
@@ -11,8 +13,9 @@ from marketplaces.allegro.integrations.LuckyStarProductIntegrator import LuckySt
 PRICE_OVERHEAD = -8  # percents
 MAX_AUCTIONS_TO_SEND = 1000
 
-ERROR_FILE_NAME = 'log/{}_wheels/auction.error'.format(WHEELS_COUNT)
-LAST_AUCTION_FILE_NAME = 'log/{}_wheels/last_auction.log'.format(WHEELS_COUNT)
+ERROR_FILE_NAME = 'auction.error'
+LOGS_FILE_PATH = 'log/{}_wheels'.format(WHEELS_COUNT)
+LAST_AUCTION_FILE_PATH = '{}/last_auction.log'.format(LOGS_FILE_PATH)
 
 fmt = "[%(levelname)s:%(filename)s:%(lineno)s: %(funcName)s()] %(message)s"
 log.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"), format=fmt)
@@ -29,10 +32,11 @@ def createLuckyStarWholesale():
 
 
 def saveError(auctionNum, prodName):
-    if not os.path.isdir(os.path.dirname(ERROR_FILE_NAME)):
-        pathlib.Path(os.path.dirname(ERROR_FILE_NAME)).mkdir(parents=True, exist_ok=True)
+    if not os.path.isdir(LOGS_FILE_PATH):
+        pathlib.Path(LOGS_FILE_PATH).mkdir(parents=True, exist_ok=True)
 
-    return Fr.saveObjToFile((prodName, traceback.format_exc()), ERROR_FILE_NAME + '.' + str(auctionNum))
+    return Fr.saveObjToFile((prodName, traceback.format_exc()),
+                            LOGS_FILE_PATH + '/' + ERROR_FILE_NAME + '.' + str(auctionNum))
 
 
 def saveAuction(auction, num):
@@ -41,7 +45,7 @@ def saveAuction(auction, num):
     obj['num'] = num
     obj['auction'] = auction
 
-    return Fr.saveObjToFile(obj, LAST_AUCTION_FILE_NAME)
+    return Fr.saveObjToFile(obj, LAST_AUCTION_FILE_PATH)
 
 
 def handleLastErrors():
@@ -50,7 +54,7 @@ def handleLastErrors():
 
         lastAuctionNum = None
         lastAuction = None
-        lastObj = Fr.readObjFromFile(LAST_AUCTION_FILE_NAME)
+        lastObj = Fr.readObjFromFile(LAST_AUCTION_FILE_PATH)
 
         if lastObj is not None:
             lastAuctionNum = lastObj['num']
@@ -65,23 +69,29 @@ def handleLastErrors():
 
     Allegro.auction.setNextFreeNum(lastAuctionNum + 1)
 
-    try:
-        errFilename = ERROR_FILE_NAME
-        prodName, tb = Fr.readObjFromFile(errFilename)
+    logNums = [int(os.path.splitext(f)[1][1:]) for f in os.listdir(LOGS_FILE_PATH)
+               if re.match(rf'{ERROR_FILE_NAME}.[0-9]+', f)]
 
-        print('Found error log for \'{}\' product:\n\n'.format(prodName)
-              + tb + '\n'
-              + 'To run programme, please fix this error and remove \'{}\' file!\n'
-              .format(errFilename))
-
-        raise EnvironmentError('\nFIX ERRORS AND REMOVE \'{}\' FILE FIRST!'
-                               .format(errFilename))
-
-    except FileNotFoundError:
+    if not logNums:
         print('No previous errors found!\n'
               'Starting normal run...\n')
 
         return lastAuctionNum
+
+    logNums.sort()
+    num = input("Found error logs, pick log nr to show or '0' to skip:\n\n"
+                "{}:\n".format(logNums))
+
+    if num == 0:
+        return lastAuctionNum
+
+    errFilename = LOGS_FILE_PATH + '/' + ERROR_FILE_NAME + '.' + str(num)
+    prodName, tb = Fr.readObjFromFile(errFilename)
+
+    print('Error log for \'{}\' product:\n\n'.format(prodName)
+          + tb + '\n')
+
+    raise EnvironmentError('Normal run aborted')
 
 
 def main():
