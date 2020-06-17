@@ -510,3 +510,7 @@ class RestAPI:
                       json=template, bearer=True)
 
         return commandId
+
+
+if __name__ == '__main__':
+    Auction.cutToMaxAllegroTitleLen('ITP 1/2"-20 FLAT TAPERED CHROME LUG NUT BOX 16 CL')
