@@ -32,6 +32,12 @@ class Auction:
     nextFreeNum = 1
     commandsIds = list()
     commandsStats = list()
+    allegroCharsMap = {
+        '&': '&amp;',
+        '"': '&quot;',
+        '<': '&lt;',
+        '>': '&gt;'
+    }
 
     def __init__(self, integrator):
         self.template = {
@@ -153,8 +159,26 @@ class Auction:
     def incrementNextFreeNum(self):
         Auction.nextFreeNum += 1
 
-    def setTitle(self, name):
-        self.template['name'] = name[0:ALLEGRO_MAX_TITLE_LENGTH - 1]
+    @staticmethod
+    def cutToMaxAllegroTitleLen(text):
+        idx = 0
+        length = 0
+
+        for c in text:
+            try:
+                length += len(Auction.allegroCharsMap[c])
+            except KeyError:
+                length += 1
+
+            if length > ALLEGRO_MAX_TITLE_LENGTH:
+                break
+
+            idx += 1
+
+        return text[0:idx]
+
+    def setTitle(self, text):
+        self.template['name'] = self.cutToMaxAllegroTitleLen(text)
 
     def setEAN(self, ean):
         self.template['ean'] = ean
