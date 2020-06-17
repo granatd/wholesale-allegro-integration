@@ -177,6 +177,24 @@ class Auction:
 
         return text[0:idx]
 
+    @staticmethod
+    def convToAllegroEntities(text):
+        convText = ''
+
+        for c in text:
+            try:
+                convText += Auction.allegroCharsMap[c]
+            except KeyError:
+                convText += c
+
+        return convText
+
+    def convDescToAllegroEntities(self, desc):
+        for section in desc['sections']:
+            section['items'][0]['content'] = self.convToAllegroEntities(section['items'][0]['content'])
+
+        return desc
+
     def setTitle(self, text):
         self.template['name'] = self.cutToMaxAllegroTitleLen(text)
 
@@ -192,7 +210,7 @@ class Auction:
         self.template['category'] = category
 
     def setDescription(self, desc):
-        self.template['description'] = desc
+        self.template['description'] = self.convDescToAllegroEntities(desc)
 
     def setParams(self, params):
         self.template['parameters'] = params
