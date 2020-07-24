@@ -27,6 +27,8 @@ log = log.getLogger(__name__)
 freeDelivery = {'id': '7ea0d982-bb98-4792-a486-4b331e4da214'}   # motobuda
 standardDelivery = {'id': 'd7484b99-c65e-4af2-b51b-5fb20b8d9d37'}   # motobuda
 
+freeDelivery = standardDelivery  # for now
+
 
 class Auction:
     nextFreeNum = 1
