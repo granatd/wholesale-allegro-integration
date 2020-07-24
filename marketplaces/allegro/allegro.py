@@ -23,4 +23,11 @@ class Allegro:
         return self.filteredOffers
 
     def isDuplicatedOffer(self, name, categoryId):
-        return self.filterMyOffers(name, 'ACTIVE', 1, categoryId)
+        filtered = self.filterMyOffers(name, 'ACTIVE', 1, categoryId)
+        if not filtered:
+            return False
+
+        if filtered[0]['name'].startswith(name) or name.startswith(filtered[0]['name']):
+            return True
+
+        return False
