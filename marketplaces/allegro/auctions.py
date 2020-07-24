@@ -33,10 +33,10 @@ class Auction:
     commandsIds = list()
     commandsStats = list()
     allegroCharsMap = {
-        '&': '&amp;',
-        '"': '&quot;',
-        '<': '&lt;',
-        '>': '&gt;'
+        '&': {'val': '&amp;', 'replaceInDesc': True},
+        '"': {'val': '&quot;', 'replaceInDesc': True},
+        '<': {'val': '&lt;', 'replaceInDesc': False},
+        '>': {'val': '&gt;', 'replaceInDesc': False},
     }
 
     def __init__(self, integrator):
@@ -166,7 +166,7 @@ class Auction:
 
         for c in text:
             try:
-                length += len(Auction.allegroCharsMap[c])
+                length += len(Auction.allegroCharsMap[c]['val'])
             except KeyError:
                 length += 1
 
@@ -183,7 +183,12 @@ class Auction:
 
         for c in text:
             try:
-                convText += Auction.allegroCharsMap[c]
+                entity = Auction.allegroCharsMap[c]['val']
+                if Auction.allegroCharsMap[c]['replaceInDesc']:
+                    convText += entity
+                else:
+                    convText += c
+
             except KeyError:
                 convText += c
 
