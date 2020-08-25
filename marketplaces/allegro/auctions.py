@@ -8,14 +8,14 @@ import marketplaces.allegro.fileReader as Fr
 
 from pprint import pformat
 from base64 import b64encode, b64decode
-from marketplaces.allegro.integrations.LuckyStarProductIntegrator import WHEELS_COUNT
+from logs import LogFiles
 
 MAX_TRIES = 1
 
 ALLEGRO_MAX_TITLE_LENGTH = 50
 ALLEGRO_TOKEN_FILE = 'allegro.token'
-ALLEGRO_OFFERS_FILE = 'log/{}_wheels/allegro.offers'.format(WHEELS_COUNT)
-ALLEGRO_OFFERS_STATUS_FILE = 'log/{}_wheels/allegro.offers.status'.format(WHEELS_COUNT)
+ALLEGRO_OFFERS_FILE = LogFiles.logsDir + '/allegro.offers'
+ALLEGRO_OFFERS_STATUS_FILE = LogFiles.logsDir + '/allegro.offers.status'
 
 fmt = "[%(levelname)s:%(filename)s:%(lineno)s: %(funcName)s()] %(message)s"
 log.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"), format=fmt)
@@ -31,7 +31,7 @@ freeDelivery = standardDelivery  # for now
 
 
 class Auction:
-    nextFreeNum = 1
+    auctionNum = 0
     commandsIds = list()
     commandsStats = list()
     allegroCharsMap = {
@@ -71,8 +71,8 @@ class Auction:
         self.imgLinks = None
         self.restMod = RestAPI()
         self.integrator = integrator
-        self.num = Auction.nextFreeNum
-        self.incrementNextFreeNum()
+        self.num = Auction.auctionNum
+        self.incrementAuctionNum()
 
         try:
             self.setEAN(integrator.getEAN())
@@ -96,8 +96,8 @@ class Auction:
                   '{}'.format(pformat(self.template)))
 
     @staticmethod
-    def setNextFreeNum(num):
-        Auction.nextFreeNum = num
+    def setAuctionNum(num):
+        Auction.auctionNum = num
 
     @staticmethod
     def getStatus(cmdId):
@@ -158,8 +158,8 @@ class Auction:
         Auction.saveNotFinishedCommands()
         Auction.printCommandsStats()
 
-    def incrementNextFreeNum(self):
-        Auction.nextFreeNum += 1
+    def incrementAuctionNum(self):
+        Auction.auctionNum += 1
 
     @staticmethod
     def cutToMaxAllegroTitleLen(text):

@@ -3,8 +3,6 @@ import re
 import html
 import logging as log
 
-WHEELS_COUNT = 1
-
 fmt = "[%(levelname)s:%(filename)s:%(lineno)s: %(funcName)s()] %(message)s"
 log.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"), format=fmt)
 log = log.getLogger(__name__)
@@ -96,10 +94,10 @@ class LuckyStarProductIntegrator:
         self.wheelsCount = None
         self.setWheelsCount()
 
-    def setWheelsCount(self):
-        self.wheelsCount = WHEELS_COUNT
+    def setWheelsCount(self, count):
+        self.wheelsCount = count
 
-        if not str(WHEELS_COUNT) == '1_set':
+        if not str(count) == '1_set':
             return
 
         cat = {'id': ''}
@@ -111,9 +109,11 @@ class LuckyStarProductIntegrator:
 
         if cat['id'] == '301094':  # motorbikes' single tire
             self.wheelsCount = 2
-            cat['id'] = '301106'  # change category to motorbikes' tires sets
-        else:
+            cat['id'] = '301106'   # change category to motorbikes' tires sets
+        elif cat['id'] == '257689' or cat['id'] or '257691' or cat['id'] or '257692':  # cars
             self.wheelsCount = 4
+        else:
+            self.wheelsCount = 1   # others
 
     def getTitle(self):
         prefix = ''

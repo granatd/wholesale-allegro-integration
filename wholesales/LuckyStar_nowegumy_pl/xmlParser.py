@@ -17,9 +17,18 @@ log = log.getLogger(__name__)
 class LuckyStarWholesale:
 
     def __init__(self):
+        self.newData = False
         self.xmlFile = 'sklep.xml'
         if not os.path.isfile(self.xmlFile):
             self._fetchXML()
+            self.newData = True
+        else:
+            answer = input('Found old wholesale data! Do you want to:\n'
+                           '1) continue (default) or \n'
+                           '2) start over with new actual data? (\'n\')\n\n')
+            if answer.lower() == 'n':
+                self._fetchXML()
+                self.newData = True
 
         self.product = None
         self.productIdx = 0
@@ -30,12 +39,18 @@ class LuckyStarWholesale:
         self.categories = self.root.find('ng:KATEGORIE', ns).findall('ng:KATEGORIA', ns)
         self.producers = self.root.find('ng:PRODUCENCI', ns).findall('ng:PRODUCENT', ns)
 
+    def getProductsCount(self):
+        return len(self.products)
+
     def _fetchXML(self):
         url = 'https://xml.nowegumy.pl/38c07d9eb6f585cb2e363aa8d83443b1b9fcc722/sklep.xml'
         resp = requests.get(url)
 
         with open('sklep.xml', 'wb') as f:
             f.write(resp.content)
+
+    def hasNewData(self):
+        return self.newData
 
     def isFiltered(self, prod):
         state = prod.find('ng:STAN', ns)
@@ -60,7 +75,7 @@ class LuckyStarWholesale:
 
         for prod in products:
             price = prod.find('ng:CENA_BRUTTO', ns)
-            price.text = str(float(price.text) * (1 + percent/100))
+            price.text = str(float(price.text) * (1 + percent / 100))
 
             price = prod.find('ng:CENA_NETTO', ns)
             price.text = str(float(price.text) * (1 + percent / 100))
@@ -195,7 +210,6 @@ class LuckyStarProduct:
         #     forbiddenTags = ['<a href=(.+)>', '<img src=(.+)>', '</a>',]
         #
         #     re.search
-
 
         def keywordsMatch(desc):
             includedKeys = [r'\bO\b']
